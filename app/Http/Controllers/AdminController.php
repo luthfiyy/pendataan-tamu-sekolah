@@ -7,14 +7,20 @@ use App\Models\Tamu;
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use App\Models\KedatanganTamu;
+use App\Exports\LaporanTamuExport;
 use Illuminate\Support\Facades\DB;
+use App\Exports\LaporanKurirExport;
 use App\Models\KedatanganEkspedisi;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
     // Di dalam AdminController
     public function index()
     {
+
+        Carbon::setLocale('id');
+
         // Data statistik
         $currentMonth = Carbon::now()->month;
         $totalTamuBulanIni = KedatanganTamu::whereMonth('waktu_kedatangan', $currentMonth)->count();
@@ -30,19 +36,20 @@ class AdminController extends Controller
         $startOfWeek = Carbon::now()->startOfWeek()->format('Y-m-d');
         $endOfWeek = Carbon::now()->endOfWeek()->format('Y-m-d');
 
-        $dataTamu = DB::table('tamu')
-            ->select(DB::raw('DAYOFWEEK(created_at) as day_of_week'), DB::raw('count(*) as total'))
-            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
-            ->whereRaw('DAYOFWEEK(created_at) BETWEEN 2 AND 6') // Hanya Senin hingga Jumat
+        $dataTamu = DB::table('kedatangan_tamu')
+            ->select(DB::raw('DAYOFWEEK(waktu_perjanjian) as day_of_week'), DB::raw('count(*) as total'))
+            ->whereBetween('waktu_perjanjian', [$startOfWeek, $endOfWeek])
+            ->whereRaw('DAYOFWEEK(waktu_perjanjian) BETWEEN 2 AND 6') // Hanya Senin hingga Jumat
             ->groupBy('day_of_week')
             ->orderBy('day_of_week')
             ->pluck('total', 'day_of_week')
             ->toArray();
 
-        $dataKurir = DB::table('ekspedisi')
-            ->select(DB::raw('DAYOFWEEK(created_at) as day_of_week'), DB::raw('count(*) as total'))
-            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
-            ->whereRaw('DAYOFWEEK(created_at) BETWEEN 2 AND 6') // Hanya Senin hingga Jumat
+
+        $dataKurir = DB::table('kedatangan_ekspedisi')
+            ->select(DB::raw('DAYOFWEEK(tanggal_waktu) as day_of_week'), DB::raw('count(*) as total'))
+            ->whereBetween('tanggal_waktu', [$startOfWeek, $endOfWeek])
+            ->whereRaw('DAYOFWEEK(tanggal_waktu) BETWEEN 2 AND 6') // Hanya Senin hingga Jumat
             ->groupBy('day_of_week')
             ->orderBy('day_of_week')
             ->pluck('total', 'day_of_week')
@@ -77,7 +84,50 @@ class AdminController extends Controller
         ]);
     }
 
+    public function pegawai() {
+        $query = Pegawai::with('user')->orderBy('created_at', 'desc');;
+        $pegawai = $query->paginate(10); // Adjust the number of items per page if needed
+        return view("admin.pegawai", compact("pegawai"));
+    }
 
+    public function laporan_tamu()
+    {
+        Carbon::setLocale('id');
 
+        $tamus = KedatanganTamu::with('tamu', 'pegawai')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // Pastikan ini adalah metode paginasi
+        return view("admin.laporan-tamu", compact('tamus'));
+    }
+
+    public function laporan_kurir()
+    {
+        Carbon::setLocale('id');
+
+        $ekspedisi = KedatanganEkspedisi::with('ekspedisi', 'pegawai')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        return view("admin.laporan-kurir", compact('ekspedisi'));
+    }
+
+    public function exportTamu()
+    {
+        Carbon::setLocale('id');
+
+        $currentDate = Carbon::now()->translatedFormat('l, d-m-Y');
+        $fileName = "Laporan-Tamu {$currentDate}.xlsx";
+
+        return Excel::download(new LaporanTamuExport, $fileName);
+    }
+
+    public function exportKurir()
+    {
+        Carbon::setLocale('id');
+
+        $currentDate = Carbon::now()->translatedFormat('l, d-m-Y');
+        $fileName = "Laporan-Ekspedisi {$currentDate}.xlsx";
+
+        return Excel::download(new LaporanKurirExport, $fileName);
+    }
 
 }

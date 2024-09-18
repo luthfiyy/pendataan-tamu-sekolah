@@ -12,11 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pegawai', function (Blueprint $table) {
-            $table->id();
+            $table->string('nip')->primary();
             $table->unsignedBigInteger('id_user');
-            $table->string('nip');
             $table->string('no_telp');
-            $table->string('no_wa');
             $table->string('ptk');
             $table->timestamps();
 

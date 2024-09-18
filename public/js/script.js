@@ -182,96 +182,108 @@ const body = document.querySelector("body"),
 
 
 
-var ctx = document.getElementById("chart-bars").getContext("2d");
+        // Mengambil konteks grafik
+        // var ctx = document.getElementById("chart-bars").getContext("2d");
 
-        new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"],
-                datasets: [{
-                        label: "Tamu",
-                        tension: 0.4,
-                        borderWidth: 0,
-                        borderRadius: 4,
-                        borderSkipped: false,
-                        backgroundColor: "rgba(255, 255, 255, .8)",
-                        data: [50, 20, 10, 22, 50, 10, 40],
-                        maxBarThickness: 50
-                    },
-                    {
-                        label: "Kurir",
-                        tension: 0.4,
-                        borderWidth: 0,
-                        borderRadius: 4,
-                        borderSkipped: false,
-                        backgroundColor: "rgba(255, 255, 0, .8)", // Menggunakan warna merah untuk bar kedua
-                        data: [30, 40, 20, 50, 60, 70, 80],
-                        maxBarThickness: 50
-                    }
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true, // Menampilkan legenda untuk kedua dataset
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            drawBorder: false,
-                            display: true,
-                            drawOnChartArea: true,
-                            drawTicks: false,
-                            borderDash: [5, 5],
-                            color: 'rgba(255, 255, 255, .2)'
-                        },
-                        ticks: {
-                            suggestedMin: 0,
-                            suggestedMax: 500,
-                            beginAtZero: true,
-                            padding: 10,
-                            font: {
-                                size: 14,
-                                weight: 300,
-                                family: "Roboto",
-                                style: 'normal',
-                                lineHeight: 2
-                            },
-                            color: "#fff"
-                        },
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            display: true,
-                            drawOnChartArea: true,
-                            drawTicks: false,
-                            borderDash: [5, 5],
-                            color: 'rgba(255, 255, 255, .2)'
-                        },
-                        ticks: {
-                            display: true,
-                            color: '#f8f9fa',
-                            padding: 10,
-                            font: {
-                                size: 14,
-                                weight: 300,
-                                family: "Roboto",
-                                style: 'normal',
-                                lineHeight: 2
-                            },
-                        }
-                    },
-                },
-            },
-        });
+        // // Nama hari dalam bahasa Indonesia
+        // var daysOfWeek = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+
+        // // Mendapatkan data dari Blade
+        // var dataTamu = @json($dataTamu);
+        // var dataKurir = @json($dataKurir);
+
+        // // Membuat grafik bar dengan Chart.js
+        // new Chart(ctx, {
+        //     type: "bar",
+        //     data: {
+        //         labels: daysOfWeek, // Menggunakan nama hari dalam bahasa Indonesia
+        //         datasets: [{
+        //                 label: "Tamu",
+        //                 tension: 0.4,
+        //                 borderWidth: 0,
+        //                 borderRadius: 4,
+        //                 borderSkipped: false,
+        //                 backgroundColor: "rgba(255, 255, 255, .8)",
+        //                 data: dataTamu, // Data tamu
+        //                 maxBarThickness: 50
+        //             },
+        //             {
+        //                 label: "Kurir",
+        //                 tension: 0.4,
+        //                 borderWidth: 0,
+        //                 borderRadius: 4,
+        //                 borderSkipped: false,
+        //                 backgroundColor: "rgba(255, 255, 0, .8)",
+        //                 data: dataKurir, // Data kurir
+        //                 maxBarThickness: 50
+        //             }
+        //         ],
+        //     },
+        //     options: {
+        //         responsive: true,
+        //         maintainAspectRatio: false,
+        //         plugins: {
+        //             legend: {
+        //                 display: true,
+        //                 labels: {
+        //                     color: '#fff', // Warna marker label
+        //                 }
+        //             }
+        //         },
+        //         interaction: {
+        //             intersect: false,
+        //             mode: 'index',
+        //         },
+        //         scales: {
+        //             y: {
+        //                 grid: {
+        //                     drawBorder: false,
+        //                     display: true,
+        //                     drawOnChartArea: true,
+        //                     drawTicks: false,
+        //                     borderDash: [5, 5],
+        //                     color: 'rgba(255, 255, 255, .2)'
+        //                 },
+        //                 ticks: {
+        //                     suggestedMin: 0,
+        //                     suggestedMax: 500,
+        //                     beginAtZero: true,
+        //                     padding: 10,
+        //                     font: {
+        //                         size: 14,
+        //                         weight: 300,
+        //                         family: 'Mulish',
+        //                         style: 'normal',
+        //                         lineHeight: 2
+        //                     },
+        //                     color: "#fff"
+        //                 },
+        //             },
+        //             x: {
+        //                 grid: {
+        //                     drawBorder: false,
+        //                     display: true,
+        //                     drawOnChartArea: true,
+        //                     drawTicks: false,
+        //                     borderDash: [5, 5],
+        //                     color: 'rgba(255, 255, 255, .2)'
+        //                 },
+        //                 ticks: {
+        //                     display: true,
+        //                     color: '#f8f9fa',
+        //                     padding: 10,
+        //                     font: {
+        //                         size: 14,
+        //                         weight: 300,
+        //                         family: 'Mulish',
+        //                         style: 'normal',
+        //                         lineHeight: 2
+        //                     },
+        //                 }
+        //             },
+        //         },
+        //     },
+        // });
 
 
         function getDateRange() {
@@ -292,3 +304,18 @@ var ctx = document.getElementById("chart-bars").getContext("2d");
         }
 
         document.addEventListener('DOMContentLoaded', getDateRange);
+
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggles = document.querySelectorAll('.menu-toggle');
+
+            menuToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.toggle('active');
+                    const subMenu = this.nextElementSibling;
+                    subMenu.classList.toggle('show');
+                });
+            });
+        });

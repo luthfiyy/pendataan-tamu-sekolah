@@ -1,4 +1,4 @@
-<div class="card mb-4" style="margin-left: 40px; width: 1175px">
+<div class="card mb-4 ms-4" style=" max-width: 1185px">
     <div class="card-header p-0 position-relative z-index-2 m-4">
         <div class="d-flex justify-content-between align-items-center">
             {{-- search --}}
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <div class="card-table px-0 pb-2 ">
+    <div class="card-table px-0 pb-2">
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -89,7 +89,51 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        var table = $('#pegawaiTable').DataTable({
+            "paging": false,
+            "searching": true, // Disable DataTables' default search
+            "ordering": true,
+            "info": false
+        });
+
+        // Custom search input functionality
+        $('#myInput').on('keyup', function() {
+            table.search(this.value).draw(); // Use DataTables' search API
+        });
+
+        $('#pegawaiTable_filter').hide();
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('#laporanTable');
+        const headers = table.querySelectorAll('th');
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+        headers.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                const isAscending = header.classList.contains('sorted-asc');
+                const newRows = rows.sort((rowA, rowB) => {
+                    const cellA = rowA.children[index].innerText.trim();
+                    const cellB = rowB.children[index].innerText.trim();
+                    return isAscending ? cellB.localeCompare(cellA) : cellA
+                        .localeCompare(cellB);
+                });
+
+                table.querySelector('tbody').append(...newRows);
+
+                headers.forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
+                header.classList.toggle('sorted-asc', !isAscending);
+                header.classList.toggle('sorted-desc', isAscending);
+            });
+        });
+    });
+
     function myFunction() {
         var input, filter, table, tr, td, i, j, txtValue;
         input = document.getElementById("myInput");

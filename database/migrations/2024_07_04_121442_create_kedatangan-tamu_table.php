@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kedatangan-tamu', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('id_pegawai');
-            $table->unsignedBigInteger('id_tamu');
+        Schema::create('kedatangan_tamu', function (Blueprint $table) {
+            $table->string('id_kedatanganTamu')->primary();
+            $table->string('id_pegawai');
+            $table->string('id_tamu');
             $table->unsignedBigInteger('id_user');
             $table->string('qr_code');
             $table->string('tujuan');
-            $table->string('instansi');
+            $table->string('instansi')->nullable();
             $table->dateTime('waktu_perjanjian');
             $table->string('foto');
-            $table->dateTime('waktu_kedatangan'); // Ditambahkan kolom waktu_kedatangan
+            $table->dateTime('waktu_kedatangan');
+            $table->enum('status', ['Menunggu konfirmasi', 'Diterima', 'Ditolak'])->default('Menunggu konfirmasi');
+            $table->string('keterangan')->nullable();
 
             $table->timestamps();
 
             // Menambahkan foreign key constraints
-            $table->foreign('id_pegawai')->references('id')->on('pegawai')->onDelete('cascade');
-            $table->foreign('id_tamu')->references('id')->on('tamu')->onDelete('cascade');
+            $table->foreign('id_pegawai')->references('nip')->on('pegawai')->onDelete('cascade');
+            $table->foreign('id_tamu')->references('id_tamu')->on('tamu')->onDelete('cascade');
             $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -37,12 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('appointments', function (Blueprint $table) {
-            // Menghapus foreign key constraints
-            $table->dropForeign(['id_pegawai']);
-            $table->dropForeign(['id_tamu']);
-            $table->dropForeign(['id_user']);
-        });
-
+        Schema::dropIfExists('kedatangan_tamu');
     }
 };

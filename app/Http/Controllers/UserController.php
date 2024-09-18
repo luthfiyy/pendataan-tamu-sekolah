@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use App\Models\KedatanganTamu;
 use App\Http\Controllers\Controller;
@@ -33,8 +34,9 @@ class UserController extends Controller
 
     public function role($view)
     {
-        $pegawai = User::where('role', 'pegawai')->get();
-        return view($view, compact('pegawai'));
+        $user = User::where('role', 'pegawai')->get();
+        $pegawai = Pegawai::with('user')->get();
+        return view($view, compact('pegawai', 'user'));
     }
 
 

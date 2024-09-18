@@ -1,0 +1,38 @@
+.table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 15px;
+}
+
+.table-modern thead th {
+    background-color: transparent;
+    padding: 12px;
+}
+
+.table-modern tbody tr {
+    background-color: transparent;
+}
+
+.table-modern td {
+    padding: 15px;
+    background-color: transparent;
+    color: #707070;
+    font-size: 0.875rem;
+}
+
+
+
+.table-modern .image-icon {
+    font-size: 1.25rem;
+    color: #707070;
+    cursor: pointer;
+}
+
+.pagination-container {
+    margin-top: 20px;
+}
+
+
+.border-none {
+    border: none;
+}

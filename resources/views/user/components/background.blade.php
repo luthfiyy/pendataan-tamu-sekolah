@@ -1,10 +1,15 @@
 <div class="bg-shape bg-shape1 bg-yellow opacity-50 bg-blur"></div>
 <div class="bg-shape bg-shape2 bg-primary opacity-50 bg-blur"></div>
 <div class="bg-shape bg-shape3 bg-red opacity-50 bg-blur"></div>
-<div class="bg-shape bg-shape1 bg-primary opacity-50 bg-blur"></div>
+{{-- <div class="bg-shape bg-shape1 bg-primary opacity-50 bg-blur"></div> --}}
 <div class="bg-shape bg-shape2 bg-yellow opacity-50 bg-blur"></div>
-<div class="bg-shape bg-shape3 bg-red opacity-50 bg-blur"></div>
+{{-- <div class="bg-shape bg-shape3 bg-red opacity-50 bg-blur"></div> --}}
 
+<style>
+    .bg-shape {
+        z-index: -1
+    }
+</style>
 
 <script>
 function getRandomPosition(element) {

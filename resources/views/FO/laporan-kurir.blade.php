@@ -15,6 +15,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+
 
 
 
@@ -33,82 +35,90 @@
         <div class="row">
             <div class="col-12">
                 @include('FO.components.navbar')
+                <div class="mt-4 mb-5" style="margin-left: 30px">
+                    <x-breadcrumb />
+                </div>
 
-                <x-breadcrumb />
 
+                <div class="card my-4" style="max-width: 1340px">
 
-                <div class="card my-4">
-
-                    <div class="card-body px-0 pb-2">
+                    <div class="card-body px-0 pb-2" style="width: 100%">
                         <div class="m-4 d-flex justify-content-between align-items-center">
                             <div class="search d-flex align-items-center">
                                 <i class='bx bx-search'></i>
                                 <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Cari..">
                             </div>
                             <div class="export">
-                                <a href="{{ route('laporan_tamu.pdf') }}"
+                                <a href="{{ route('kurir.export') }}"
                                     class="d-flex align-items-center rounded-lg px-3 py-1 text-green-500 transition-all ease-in-out hover:btn hover:btn-success hover:btn-sm">
                                     <i class="fa-solid fa-file-export"></i>
                                     Export
                                 </a>
                             </div>
                         </div>
-                        <div class="table-responsive p-0">
+                        <div class="table-responsive p-4">
                             <table class="table align-items-center mb-0" id="laporanTable">
                                 <thead>
                                     <tr>
-                                        <th class="text-uppercase text-secondary text-l font-weight-bolder text-black">
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
+                                            No</th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
                                             Nama</th>
-                                        <th
-                                            class="text-uppercase text-secondary text-l font-weight-bolder ps-2 text-black">
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
                                             Ekspedisi</th>
-                                        <th
-                                            class="text-center text-uppercase text-secondary text-l font-weight-bolder text-black">
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
+                                            No Telepon</th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
                                             Pegawai yang dituju</th>
-                                        <th
-                                            class="text-center text-uppercase text-secondary text-l font-weight-bolder text-black">
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
                                             Tanggal & Waktu</th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder">
+                                            Foto</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($ekspedisi as $kedatanganEkspedisi)
+                                    @if ($ekspedisi->isEmpty())
                                         <tr>
-                                            <td class="d-flex align-items-center justify-content-center">
-                                                <div class="d-flex flex-column justify-content-center align-items-center text-center">
-                                                    <img src="{{ asset('storage/img-kurir/' . $kedatanganEkspedisi->foto) }}"
-                                                        class="avatar-l border-radius-lg" alt="user1"
-                                                        width="100px">
-                                                    <h6 class="mb-0 mt-3 text-sm">
-                                                        {{ $kedatanganEkspedisi->ekspedisi->nama_kurir }}</h6>
-                                                </div>
+                                            <td colspan="5" class="text-center p-4 text-sm">
+                                                <h6 class="text-center p-2 text-sm">Tidak Ada Laporan Ekspedisi</h6>
                                             </td>
-
-                                            <td>
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">
+                                        </tr>
+                                    @else
+                                        @foreach ($ekspedisi as $index => $kedatanganEkspedisi)
+                                            <tr>
+                                                <td>
+                                                    <h6 class="p-2 mb-0 text-sm">
+                                                        {{ $index + 1 }}</h6>
+                                                </td>
+                                                <td>
+                                                    <h6 class="p-2 mb-0 text-sm">
+                                                        {{ ucwords(strtolower($kedatanganEkspedisi->ekspedisi->nama_kurir))}}</h6>
+                                                </td>
+                                                <td>
+                                                    <h6 class="p-2 mb-0 text-sm">
                                                         {{ $kedatanganEkspedisi->ekspedisi->ekspedisi }}</h6>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle text-center">
+                                                </td>
+                                                <td>
+                                                    <h6 class="p-2 mb-0 text-sm">
+                                                        {{ $kedatanganEkspedisi->ekspedisi->no_telp }}</h6>
+                                                </td>
+                                                <td class="align-middle text-center">
 
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">
+
+                                                    <h6 class="p-2 mb-0 text-sm">
                                                         {{ $kedatanganEkspedisi->user->name }}</h6>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">
-                                                        {{ $kedatanganEkspedisi->tanggal_waktu }}</h6>
-                                                </div>
-                                            </td>
-                                            {{-- <td class="align-middle">
-                            <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
-                              Edit
-                            </a>
-                          </td> --}}
-                                    @endforeach
-
+                                                </td>
+                                                <td>
+                                                    <h6 class="p-2 mb-0 text-sm">
+                                                        {{ $kedatanganEkspedisi->tanggal_waktu ? \Carbon\Carbon::parse($kedatanganEkspedisi->tanggal_waktu)->translatedFormat('l, d/m/Y H:i') : '' }}
+                                                    </h6>
+                                                </td>
+                                                <td>
+                                                    <i class="fa-solid fa-image image-icon" style="color: #707070"
+                                                        data-src="{{ $kedatanganEkspedisi->foto ? asset('storage/img-kurir/' . $kedatanganEkspedisi->foto) : asset('img/logo-hitam.png') }}"></i>
+                                                </td>
+                                        @endforeach
+                                    @endif
                                     </tr>
                                 </tbody>
                             </table>
@@ -126,31 +136,76 @@
         <span class="close">&times;</span>
         <img class="modal-content" id="modalImage">
     </div>
-    <script src="{{ asset('js/script.js') }}"></script>
 
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            var table = $('#laporanTable').DataTable({
+                "paging": false,
+                "searching": true, // Disable DataTables' default search
+                "ordering": true,
+                "info": false
+            });
+
+            // Custom search input functionality
+            $('#myInput').on('keyup', function() {
+                table.search(this.value).draw(); // Use DataTables' search API
+            });
+
+            $('#laporanTable_filter').hide();
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.querySelector('#laporanTable');
+            const headers = table.querySelectorAll('th');
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    const isAscending = header.classList.contains('sorted-asc');
+                    const newRows = rows.sort((rowA, rowB) => {
+                        const cellA = rowA.children[index].innerText.trim();
+                        const cellB = rowB.children[index].innerText.trim();
+                        return isAscending ? cellB.localeCompare(cellA) : cellA
+                            .localeCompare(cellB);
+                    });
+
+                    table.querySelector('tbody').append(...newRows);
+
+                    headers.forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
+                    header.classList.toggle('sorted-asc', !isAscending);
+                    header.classList.toggle('sorted-desc', isAscending);
+                });
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             var modal = document.getElementById('imageModal');
             var modalImg = document.getElementById("modalImage");
             var closeBtn = document.getElementsByClassName("close")[0];
 
-            // Ambil semua gambar dengan kelas avatar-l
-            var images = document.querySelectorAll('.avatar-l');
+            // Ambil semua elemen dengan kelas avatar-l
+            var images = document.querySelectorAll('.image-icon');
 
             // Tambahkan event listener untuk setiap gambar
             images.forEach(function(img) {
                 img.onclick = function() {
                     modal.style.display = "flex";
-                    modalImg.src = this.src;
+                    modalImg.src = this.getAttribute(
+                        'data-src'); // Ambil URL gambar dari atribut data-src
                     setTimeout(() => {
-                        modal.classList.add('show');
+                        modal.classList.add('show'); // Tambahkan kelas show untuk animasi
                     }, 10);
                 }
             });
 
             // Fungsi untuk menutup modal
             function closeModal() {
-                modal.classList.remove('show');
+                modal.classList.remove('show'); // Hapus kelas show untuk animasi
                 setTimeout(() => {
                     modal.style.display = "none";
                 }, 300); // Sesuaikan dengan durasi transisi
@@ -167,28 +222,6 @@
             }
         });
 
-        function myFunction() {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("myInput");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("laporanTable");
-            tr = table.getElementsByTagName("tr");
-
-            // Loop through all table rows, and hide those who don't match the search query
-            for (i = 1; i < tr.length; i++) { // Start from 1 to skip table header
-                tr[i].style.display = "none"; // Hide the row initially
-                td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = ""; // Show the row if a match is found
-                            break; // Exit the loop once a match is found
-                        }
-                    }
-                }
-            }
-        }
     </script>
 </body>
 

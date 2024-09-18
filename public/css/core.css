@@ -215,9 +215,9 @@ a {
   color: #696cff;
   text-decoration: none;
 }
-a:hover {
+/* a:hover {
   color: #5f61e6;
-}
+} */
 
 a:not([href]):not([class]), a:not([href]):not([class]):hover {
   color: inherit;
@@ -4065,6 +4065,7 @@ textarea.form-control-lg {
   background-color: rgba(105, 108, 255, 0.08);
   border-color: rgba(105, 108, 255, 0.08);
 }
+
 .page-item.disabled .page-link {
   color: #a1acb8;
   pointer-events: none;
@@ -15189,13 +15190,13 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
   background-color: transparent;
 }
 .layout-navbar.navbar-detached {
-  width: calc(100% - (1.625rem * 2));
+  /* width: calc(100% - (1.625rem * 2)); */
   margin: 0.75rem auto 0;
   border-radius: 0.375rem;
   padding: 0 1.5rem;
 }
 .layout-navbar.navbar-detached.container-xxl {
-  max-width: calc(1440px - calc(1.625rem * 2));
+  max-width: calc(1240px - calc(1.625rem * 2));
 }
 .layout-navbar-fixed .layout-navbar.navbar-detached {
   width: calc(100% - calc(1.625rem * 2) - 16.25rem);

@@ -125,11 +125,11 @@
     {{-- </div> --}}
 
     <div class="col-12">
-        <div class="card mb-4">
+        <div class="card mb-4 ms-0" style="max-width: 1185px">
             <div class="card-header d-flex align-items-center">
                 <i class='bx bx-user-plus' style="font-size: 50px; margin-right: 10px;"></i>
                 <div>
-                    <p class="mb-0 font-weight-bolder">Tambah</p>
+                    <p class="mb-0 font-weight-bolder" style="color: #697a8d">Tambah</p>
                     <small>Pegawai</small>
                 </div>
             </div>
@@ -190,15 +190,15 @@
                             <label class="form-label" for="basic-default-password">Password</label>
                             <div class="input-group input-group-merge">
                                 <span id="basic-icon-default-password2" class="input-group-text"><i class='bx bx-lock'></i></span>
-                                <input type="password" id="basic-default-password" class="form-control phone-mask" name="password" placeholder="********" />
-                                {{-- <span id="eyeicon" class="input-group-text"><i class="bx bx-show"></i></span> --}}
+                                <input type="password" id="basic-default-password" class="form-control phone-mask" name="password" placeholder="password123" />
+                                <span id="eyeicon" class="input-group-text"><i class="bx bx-hide"></i></span>
                             </div>
                         </div>
                     </div>
-                    <input type="submit" value="Submit" class="btn btn-primary shadow-primary">
+                    <input type="submit" value="Submit" class="btn btn-primary shadow-primary"  style="width: 100%">
                 </form>
 
-                <form id="updateForm" action="{{ route('pegawai.update') }}" method="POST" onsubmit="return validateUpdateForm()" style="display: none;">
+                {{-- <form id="updateForm" action="{{ route('pegawai.update') }}" method="POST" onsubmit="return validateUpdateForm()" style="display: none;">
                     @csrf
                     <input type="hidden" name="nipToUpdate" id="nipToUpdate">
                     <div class="row mb-3">
@@ -256,12 +256,11 @@
                             <div class="input-group input-group-merge">
                                 <span id="basic-icon-default-password2" class="input-group-text"><i class='bx bx-lock'></i></span>
                                 <input type="password" id="newPassword" name="newPassword" class="form-control phone-mask" placeholder="********" />
-                                {{-- <span id="eyeiconUpdate" class="input-group-text"><i class="bx bx-show"></i></span> --}}
                             </div>
                         </div>
                     </div>
                     <input type="submit" value="Submit" class="btn btn-primary shadow-primary">
-                </form>
+                </form> --}}
             </div>
         </div>
     </div>
@@ -278,20 +277,20 @@
             eyeicon.onclick = function () {
                 if (password.type === "password") {
                     password.type = "text";
-                    eyeicon.innerHTML = '<i class="bx bx-hide"></i>';
+                    eyeicon.innerHTML = '<i class="bx bx-show"></i>';
                 } else {
                     password.type = "password";
-                    eyeicon.innerHTML = '<i class="bx bx-show"></i>';
+                    eyeicon.innerHTML = '<i class="bx bx-hide"></i>';
                 }
             }
 
             eyeiconUpdate.onclick = function () {
                 if (newPassword.type === "password") {
                     newPassword.type = "text";
-                    eyeiconUpdate.innerHTML = '<i class="bx bx-hide"></i>';
+                    eyeiconUpdate.innerHTML = '<i class="bx bx-show"></i>';
                 } else {
                     newPassword.type = "password";
-                    eyeiconUpdate.innerHTML = '<i class="bx bx-show"></i>';
+                    eyeiconUpdate.innerHTML = '<i class="bx bx-hide"></i>';
                 }
             }
         });

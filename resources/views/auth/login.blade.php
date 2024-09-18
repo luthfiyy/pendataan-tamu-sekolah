@@ -14,106 +14,115 @@
     <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
     <title>Document</title>
 
-    {{-- <style>
-        .back{
+    <style>
+        .back {
             position: absolute;
             z-index: 10;
-            top: 10px;
-            left: 10px;
+            top: 30px;
+            right: 30px;
         }
 
-        .button-back {
-            padding: 0;
-            margin: 0;
-            border: none;
-            background: none;
-            cursor: pointer;
-            --primary-color: #111;
-            --hovered-color: #4461f2;
-            position: relative;
+        /* From Uiverse.io by vinodjangid07 */
+        .Btn {
             display: flex;
-            font-weight: 600;
-            font-size: 20px;
-            gap: 0.5rem;
             align-items: center;
-        }
-
-        .button-back p {
-            margin: 0;
+            justify-content: flex-start;
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
             position: relative;
-            font-size: 20px;
-            color: var(--primary-color);
-        }
-
-        .button-back::after {
-            position: absolute;
-            content: "";
-            width: 0;
-            left: 0;
-            bottom: -7px;
-            background: var(--hovered-color);
-            height: 2px;
-            transition: 0.3s ease-out;
-        }
-
-        .button-back p::before {
-            position: absolute;
-            /*   box-sizing: border-box; */
-            content: "Kembali";
-            width: 0%;
-            inset: 0;
-            color: var(--hovered-color);
             overflow: hidden;
-            transition: 0.3s ease-out;
+            transition-duration: .3s;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+            background-color: #4461f2;
         }
 
-        .button-back:hover::after {
+        /* plus sign */
+        .sign {
             width: 100%;
+            transition-duration: .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .button-back:hover p::before {
-            width: 100%;
+        .sign svg {
+            width: 12px;
         }
 
-        .button-back:hover svg {
-            transform: translateX(4px);
-            color: var(--hovered-color);
+        .sign svg path {
+            fill: white;
         }
 
-        .button-back svg {
-            color: var(--primary-color);
-            transition: 0.2s;
-            position: relative;
-            width: 15px;
-            transition-delay: 0.2s;
+        /* text */
+        .text {
+            position: absolute;
+            right: 0%;
+            width: 0%;
+            opacity: 0;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition-duration: .3s;
         }
 
-    </style> --}}
+        /* hover effect on button width */
+        .Btn:hover {
+            width: 135px;
+            border-radius: 40px;
+            transition-duration: .3s;
+        }
+
+        .Btn:hover .sign {
+            width: 30%;
+            transition-duration: .3s;
+            padding-left: 5px;
+        }
+
+        /* hover effect button's text */
+        .Btn:hover .text {
+            opacity: 1;
+            width: 70%;
+            transition-duration: .3s;
+            padding-right: 10px;
+        }
+
+        /* button click effect*/
+        .Btn:active {
+            transform: translate(2px, 2px);
+        }
+    </style>
 </head>
 
 <body>
-    {{-- <div class="back">
-        <button class="button-back">
-            <p>Kembali</p>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-            </svg>
-        </button>
-    </div> --}}
+    <div class="back">
+
+        <a href="{{ route('landing-page') }}">
+            <button class="Btn">
+
+                <div class="text">Kembali</div>
+                <div class="sign"><svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 320 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                        <path
+                            d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
+                    </svg></div>
+            </button>
+
+        </a>
+    </div>
 
     <div class="absolute">
         <div class="absolute inset-0 justify-center">
             <div class="bg-shape1 bg-yellow opacity-50 bg-blur"></div>
             <div class="bg-shape2 bg-primary opacity-50 bg-blur"></div>
             <h2 class="custom-h2">Selamat Datang Kembali!</h2>
-            <img src="img/kalender.png" alt="" width="400px" style="margin: 35px">
+            <img src="img/kalender.svg" alt="" width="400px" style="margin: 35px">
 
 
 
             <div class="card">
-
-
                 <img src="img/gubook-hitam.png" class="logo" alt="">
                 <h3 class="custom-h3">SMKN 11 Bandung</h3>
                 <form method="POST" action="{{ route('login') }}" class="form-center">

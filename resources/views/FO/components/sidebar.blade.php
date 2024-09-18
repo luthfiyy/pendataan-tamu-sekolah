@@ -56,6 +56,12 @@
                         <span class="text nav-text">Manajemen Kunjungan</span>
                     </a>
                 </li>
+                {{-- <li class="nav-link {{ request()->routeIs('FO.manajemen-kunjungan') ? 'active' : '' }}">
+                    <a href="#">
+                        <i class='bx bx-qr-scan' ></i>
+                        <span class="text nav-text">Scan Qr Code</span>
+                    </a>
+                </li> --}}
             </ul>
         </div>
 
@@ -67,8 +73,7 @@
                 </a>
                 <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
                     @csrf
-                    <x-dropdown-link :href="route('logout')"
-                            onclick="event.preventDefault(); this.closest('form').submit();">
+                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
                         {{ __('Log Out') }}
                     </x-dropdown-link>
                 </form>
@@ -90,30 +95,32 @@
 </nav>
 
 <script>
-const body = document.querySelector("body"),
-    sidebar = document.querySelector(".sidebar"),
-    toggle = document.querySelector(".toggle"),
-    searchBtn = document.querySelector(".search-box"),
-    modeSwitch = document.querySelector(".toggle-switch"),
-    modeText = document.querySelector(".mode-text"),
-    logo = document.getElementById('logo');
+    const body = document.querySelector("body"),
+        sidebar = document.querySelector(".sidebar"),
+        toggle = document.querySelector(".toggle"),
+        searchBtn = document.querySelector(".search-box"),
+        modeSwitch = document.querySelector(".toggle-switch"),
+        modeText = document.querySelector(".mode-text"),
+        logo = document.getElementById('logo');
 
-toggle.addEventListener("click", () =>{
-  sidebar.classList.toggle("close");
-});
+    toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("close");
+    });
 
-searchBtn.addEventListener("click", () =>{
-  sidebar.classList.remove("close");
-});
+    searchBtn.addEventListener("click", () => {
+        sidebar.classList.remove("close");
+    });
 
-modeSwitch.addEventListener("click", () =>{
-  body.classList.toggle("dark");
-  if(body.classList.contains("dark")) {
-    modeText.innerText = "Mode Terang";
-    logo.src = '../img/logo-putih.png';
-  } else {
-    modeText.innerText = "Mode Gelap";
-    logo.src = '../img/logo-hitam.png'; // Path ke logo untuk light mode
-  }
-});
+    modeSwitch.addEventListener("click", () => {
+        body.classList.toggle("dark");
+        if (body.classList.contains("dark")) {
+            modeText.innerText = "Mode Terang";
+            logo.src = '../img/logo-putih.png';
+        } else {
+            modeText.innerText = "Mode Gelap";
+            logo.src = '../img/logo-hitam.png'; // Path ke logo untuk light mode
+        }
+    });
+
+
 </script>

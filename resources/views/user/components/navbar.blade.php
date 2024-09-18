@@ -1,29 +1,29 @@
-<nav>
+<nav style="z-index: 20px">
     <div class="logo">
         <img src="img/gubook-hitam.png" alt="">
     </div>
     <ul>
         <li>
-            <a href="{{ route('landing-page') }}" class="{{ Request::routeIs('landing-page') ? 'active' : '' }}">
+            <a href="{{ route('landing-page') }}" class="{{ Request::routeIs('landing-page') ? 'nav-active' : '' }}">
                 Beranda
             </a>
         </li>
         <li>
-            <a href="{{ route('guru') }}" class="{{ Request::routeIs('guru') ? 'active' : '' }}">
+            <a href="{{ route('guru') }}" class="{{ Request::routeIs('guru', 'tendik') ? 'nav-active' : '' }}">
                 Pegawai
             </a>
         </li>
         <li>
-            <a href="{{ route('tentang-kami') }}" class="{{ Request::routeIs('tentang-kami') ? 'active' : '' }}">
+            <a href="{{ route('tentang-kami') }}" class="{{ Request::routeIs('tentang-kami') ? 'nav-active' : '' }}">
                 Tentang Kami
             </a>
         </li>
-        <li>
+        {{-- <li>
             <a href="{{ route('tentang-kami') }}#kontak-kami"
                 class="{{ Request::routeIs('tentang-kami') ? 'active' : '' }}">
                 Kontak Kami
             </a>
-        </li>
+        </li> --}}
     </ul>
     <a href="#" class="a-custom" id="loginButton">
         Login
@@ -35,9 +35,9 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center">
             <div class="modal-header d-flex flex-column align-items-center">
-                <img src="{{ asset('img/warning.png') }}" alt="" width="300px">
+                <img src="{{ asset('img/warning.svg') }}" alt="" width="300px">
                 <div>
-                    <h3>Oops!</h3>
+                    <h3 style="margin-top: -1rem">Oops!</h3>
                     <p class="mb-0">Akses login ini khusus untuk Admin.</p>
                     <p class="mb-0">Jika Anda bukan Admin, silakan tutup pemberitahuan ini.</p>
                     <p class="mb-0">Terima kasih.</p>
@@ -54,13 +54,14 @@
 
 
 <style>
-    .active {
+    .nav-active {
         color: var(--primary-color);
-        border-bottom: 1px solid #191919;
+        border-bottom: 1px solid var(--primary-color);
     }
 
     .modal-header img {
-        margin-top: -130px;
+        margin-top: -10rem;
+        margin-left: 4rem;
     }
 
     .loginModal {}

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>GuBook SMKN 11 Bandung - Tentang Kami</title>
 
     <link rel="stylesheet" href="{{ asset('css/user.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('css/material-dashboard.css') }}"> --}}
@@ -26,8 +26,8 @@
     <div class="container">
         <img src="img/smkn.png" width="100%">
         <div class="card-about">
-            <h2 class="custom-h2">Datanglah dengan senang hati! Kami layani sepenuh hati</h2>
-            <p class="p-custom">Mari kita membuat pengalaman kunjungan anda lebih mudah dan aman.</p>
+            <h2 class="custom-h2 text-black">Datanglah dengan senang hati! Kami layani sepenuh hati</h2>
+            <p class="p-custom text-black">Mari kita membuat pengalaman kunjungan anda lebih mudah dan aman.</p>
             <a href="{{ route('landing-page') }}" class="a-custom">Buat Pertemuan</a>
         </div>
     </div>
@@ -35,7 +35,7 @@
     <div class="container-2">
         <div class="row justify-content-center">
             <div class="col-md-2">
-                <img src="img/thinking.png" class="img-thinking">
+                <img src="img/thinking.svg" class="img-thinking">
             </div>
             <div class="col-md-9">
                 <div class="row">

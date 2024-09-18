@@ -37,6 +37,10 @@ return [
         'from' => env('TWILIO_WHATSAPP_FROM'),
     ],
 
+    'telegram-bot-api' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
+
     // config/services.php
 
 

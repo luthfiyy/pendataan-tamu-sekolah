@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kedatangan-ekspedisi', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('id_ekspedisi');
-            $table->unsignedBigInteger('id_pegawai');
+        Schema::create('kedatangan_ekspedisi', function (Blueprint $table) {
+            $table->string('id_kedatanganEkspedisi')->primary();
+            $table->string('id_ekspedisi');
+            $table->string('id_pegawai');
             $table->unsignedBigInteger('id_user');
             $table->string('foto');
             $table->dateTime('tanggal_waktu');
             $table->timestamps();
 
             // Menambahkan foreign key constraints
-            $table->foreign('id_ekspedisi')->references('id')->on('ekspedisi')->onDelete('cascade');
-            $table->foreign('id_pegawai')->references('id')->on('pegawai')->onDelete('cascade');
+            $table->foreign('id_ekspedisi')->references('id_ekspedisi')->on('ekspedisi')->onDelete('cascade');
+            $table->foreign('id_pegawai')->references('nip')->on('pegawai')->onDelete('cascade');
             $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -32,12 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('transaksi', function (Blueprint $table) {
-            // Menghapus foreign key constraints
-            $table->dropForeign(['id_ekspedisi']);
-            $table->dropForeign(['id_pegawai']);
-            $table->dropForeign(['id_user']);
-        });
-
+        Schema::dropIfExists('kedatangan_ekspedisi');
     }
 };
