@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Log;
 use DNS2D;
 use Carbon\Carbon;
 use App\Models\Tamu;
+use GuzzleHttp\Client;
 use App\Models\Pegawai;
 use App\Mail\pegawaiMail;
-use Illuminate\Support\Str;
 // use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\KedatanganTamu;
 use App\Mail\StatusUpdatedMail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\LaporanTamuExport;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
-use GuzzleHttp\Client;
+use Illuminate\Validation\ValidationException;
 
 
 
@@ -41,10 +44,47 @@ class TamuController extends Controller
 
     public function store(Request $request)
     {
+
+        //     // Validasi request
+        $validator = Validator::make($request->all(), [
+            'waktu_perjanjian' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    $appointmentTime = Carbon::parse($value);
+
+                    // Validasi jam kerja
+                    if ($appointmentTime->hour < 8 || $appointmentTime->hour >= 15) {
+                        $fail('Waktu perjanjian harus antara jam 8 pagi sampai jam 3 sore.');
+                    }
+
+                    // Validasi hari kerja (Senin-Jumat)
+                    if ($appointmentTime->isWeekend()) {
+                        $fail('Waktu perjanjian harus pada hari kerja (Senin-Jumat).');
+                    }
+
+                    // Validasi waktu di masa depan
+                    if ($appointmentTime->isPast()) {
+                        $fail('Waktu perjanjian tidak boleh di masa lalu.');
+                    }
+                },
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
         // Cek apakah ada pertemuan yang diterima pada hari yang sama untuk id_pegawai tertentu
         $existingAcceptedAppointment = KedatanganTamu::where('id_pegawai', $request->id_pegawai)
             ->where('status', 'Diterima')
-            ->whereDate('waktu_perjanjian', Carbon::parse($request->waktu_perjanjian)->format('Y-m-d'))
+            ->whereRaw('DATE(waktu_perjanjian) = ? AND HOUR(waktu_perjanjian) = ?', [
+                Carbon::parse($request->waktu_perjanjian)->format('Y-m-d'),
+                Carbon::parse($request->waktu_perjanjian)->format('H')
+            ])
             ->first();
 
         if ($existingAcceptedAppointment) {
@@ -111,7 +151,6 @@ class TamuController extends Controller
         ]);
     }
 
-
     public function konfirmasiKedatangan($token, $action, Request $request)
     {
         $kedatanganTamu = KedatanganTamu::where('confirmation_token', $token)->firstOrFail();
@@ -161,7 +200,6 @@ class TamuController extends Controller
         Mail::to($email)->send(new StatusUpdatedMail($kedatanganTamu, $fullQrCodePath));
     }
 
-
     public function verifikasiQrCode(Request $request)
     {
         $qrCodeContent = $request->input('qr_code_content');
@@ -175,49 +213,6 @@ class TamuController extends Controller
             return response()->json(['success' => false, 'message' => 'QR Code tidak valid.']);
         }
     }
-
-    // public function getTamuDetail($id_tamu)
-    // {
-    //     $tamu = Tamu::find($id_tamu);
-    //     if ($tamu) {
-    //         $kedatangan = KedatanganTamu::where('id_tamu', $id_tamu)
-    //             ->whereDate('waktu_perjanjian', '<=', now()->toDateString())
-    //             ->orderBy('waktu_perjanjian', 'desc')
-    //             ->first();
-
-
-    //         if ($kedatangan) {
-    //             $waktuPerjanjian = Carbon::parse($kedatangan->waktu_perjanjian);
-    //             $now = Carbon::now();
-
-    //             if ($now->greaterThanOrEqualTo($waktuPerjanjian)) {
-    //                 return response()->json([
-    //                     'success' => true,
-    //                     'name' => $tamu->nama,
-    //                     'email' => $tamu->email,
-    //                     'phone' => $tamu->no_telp,
-    //                     'status' => $kedatangan->status,
-    //                     'waktu_perjanjian' => $kedatangan->waktu_perjanjian,
-    //                 ]);
-    //             } else {
-    //                 return response()->json([
-    //                     'success' => false,
-    //                     'message' => 'Waktu scan belum mencapai jadwal perjanjian.'
-    //                 ], 403);
-    //             }
-    //         } else {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Tidak ada jadwal perjanjian yang sesuai.'
-    //             ], 404);
-    //         }
-    //     } else {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Tamu tidak ditemukan'
-    //         ], 404);
-    //     }
-    // }
 
     public function getTamuDetail($id_tamu)
     {
@@ -261,7 +256,7 @@ class TamuController extends Controller
                 } else {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Waktu scan telah melewati batas 1 jam dari jadwal perjanjian.'
+                        'message' => 'Waktu scan telah melewati batas 30 menit dari jadwal perjanjian.'
                     ], 403);
                 }
             } else {
@@ -297,5 +292,112 @@ class TamuController extends Controller
         $notifications = Tamu::where('created_at', '>=', now()->subDay())->get();
 
         return response()->json($notifications);
+    }
+
+    public function generatePDF(Request $request)
+    {
+        Log::info('Generating PDF with request:', $request->all());
+
+        try {
+            $request->validate([
+                'type' => 'required|in:month,date_range,year',
+                'value' => 'required_if:type,month,year',
+                'start' => 'required_if:type,date_range|date',
+                'end' => 'required_if:type,date_range|date|after_or_equal:start',
+                'report_type' => 'required|in:summary,detail',
+                'status' => 'nullable|in:Menunggu konfirmasi,Diterima,Ditolak,Hadir,Tidak Hadir',
+            ]);
+
+            $query = KedatanganTamu::query();
+            $periode = '';
+            $title = '';
+
+            switch ($request->type) {
+                case 'month':
+                    $date = Carbon::createFromFormat('Y-m', $request->value);
+                    $query->whereYear('waktu_perjanjian', $date->year)
+                        ->whereMonth('waktu_perjanjian', $date->month);
+                    $title = 'Rekap Tamu Bulan ' . $date->translatedFormat('F Y');
+                    $periode = $date->translatedFormat('F Y');
+                    break;
+
+                case 'date_range':
+                    $startDate = Carbon::parse($request->start)->startOfDay();
+                    $endDate = Carbon::parse($request->end)->endOfDay();
+                    $query->whereBetween('waktu_perjanjian', [$startDate, $endDate]);
+                    $title = 'Rekap Tamu ' . $startDate->translatedFormat('d F Y') . ' - ' . $endDate->translatedFormat('d F Y');
+                    $periode = $startDate->translatedFormat('d F Y') . ' - ' . $endDate->translatedFormat('d F Y');
+                    break;
+
+                case 'year':
+                    $query->whereYear('waktu_perjanjian', $request->value);
+                    $title = 'Rekap Tamu Tahun ' . $request->value;
+                    $periode = 'Tahun ' . $request->value;
+                    break;
+            }
+
+            // Get status statistics if no specific status is selected
+            $now = Carbon::now();
+            $statusStats = null;
+
+            if (empty($request->status)) {
+                $statusStats = [
+                    'Menunggu konfirmasi' => (clone $query)->where('status', 'Menunggu konfirmasi')->count(),
+                    'Diterima' => (clone $query)->where('status', 'Diterima')->count(),
+                    'Ditolak' => (clone $query)->where('status', 'Ditolak')->count(),
+                    'Hadir' => (clone $query)->where('status', 'Diterima')
+                    ->whereNotNull('waktu_kedatangan'),
+                    'Tidak Hadir' => (clone $query)->where('status', 'Diterima')
+                        ->whereNull('waktu_kedatangan')
+                        ->where('waktu_perjanjian', '<', $now->subMinutes(30))
+                ];
+            }
+
+            if ($request->status) {
+                $query->where('status', $request->status);
+                $title .= ' - Status: ' . $request->status;
+            }
+
+            if ($request->report_type === 'summary') {
+                $dailyCount = $query->get()
+                    ->groupBy(function ($item) {
+                        return $item->waktu_perjanjian ?
+                            Carbon::parse($item->waktu_perjanjian)->format('Y-m-d') : null;
+                    })
+                    ->map->count();
+
+                $totalTamu = $dailyCount->sum();
+                $pdf = PDF::loadView('pdf.tamu_recap', compact(
+                    'dailyCount',
+                    'title',
+                    'periode',
+                    'totalTamu',
+                    'statusStats'
+                ));
+            } else {
+                $guests = $query->with('tamu', 'user')->get();
+                $pdf = PDF::loadView('pdf.tamu_detail', compact(
+                    'guests',
+                    'title',
+                    'periode',
+                    'statusStats'
+                ));
+            }
+
+            Log::info('PDF generated successfully');
+
+
+            $content = $pdf->output();
+
+            return response($content)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="rekap_tamu.pdf"');
+        } catch (ValidationException $e) {
+            Log::error('Validation error: ' . $e->getMessage());
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Error generating PDF: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate PDF: ' . $e->getMessage()], 500);
+        }
     }
 }

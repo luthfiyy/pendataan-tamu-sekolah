@@ -36,7 +36,7 @@
 <body>
     <div class="container">
         <h1>Konfirmasi Penolakan Kunjungan</h1>
-        <p>Anda akan menolak kunjungan dari: {{ $kedatanganTamu->tamu->nama }}</p>
+        <p>Anda akan menolak kunjungan dari: {{ ucwords(strtolower($kedatanganTamu->tamu->nama)) }}</p>
         <p>Tanggal kunjungan: {{ \Carbon\Carbon::parse($kedatanganTamu->waktu_perjanjian)->locale('id')->translatedFormat('l, d/m/Y, H:i') }}</p>
 
         <form action="{{ route('confirm.appointment', ['token' => $kedatanganTamu->confirmation_token, 'action' => 'reject']) }}" method="POST">

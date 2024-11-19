@@ -12,7 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap"
         rel="stylesheet">
     <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
-    <title>Document</title>
+    <title>GuBook SMKN 11 Bandung</title>
+
 
     <style>
         .back {

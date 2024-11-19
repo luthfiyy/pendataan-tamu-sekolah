@@ -13,37 +13,14 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        .blob-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: auto;
-            max-height: 100vh;
-            z-index: -1;
-        }
-
-        .blob-background img {
-            width: 1300px;
-            right: 0;
-            position: absolute;
-        }
-
         body {
-            overflow: hidden;
+            /* overflow: hidden; */
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            /* background: linear-gradient(90deg, #F3E7F1, #E7EBF5); */
-            /* background: radial-gradient(circle at 10% 20%, #efcee2, transparent 50%),
-                radial-gradient(circle at 50% 30%, #d6e0fd, transparent 50%),
-                radial-gradient(circle at 100% 70%, #fff, transparent 50%); */
-            /* background: #f6f6f6; */
             background-attachment: fixed;
             background-size: cover;
         }
-
-
     </style>
 
 </head>
@@ -51,41 +28,32 @@
 <body>
     @include('user.components.background')
     @include('user.components.navbar')
-    {{-- <img src="img/blob-haikei.png" alt="" class="blob-background"> --}}
-    {{-- <div class="blob-background">
-        <img src="img/blob.svg">
-    </div> --}}
-    <!-- Content of the landing page -->
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-7 p-2 justify-content-center">
-                <div class="content-wrapper ">
-                    <h1 style="font-weight: 700">Datanglah dengan senang hati! Kami layani sepenuh hati</h1>
-                    <p class="p-custom mt-2" style=" font-size: 18px">Mari kita membuat pengalaman kunjungan anda lebih
-                        mudah dan aman.</p>
+        <div class="text-center">
+            <div class="content-wrapper align-items-center">
+                <h1 style="font-weight: 700" class="mb-3">
+                    Datanglah dengan senang hati!<br>
+                    Kami layani sepenuh hati
+                </h1>
+                <p class="mb-5 p1" style="font-size: 1.1rem">Mari kita membuat pengalaman kunjungan anda lebih
+                    mudah dan aman.</p>
 
-                    <div class="d-flex justify-content-between" style="padding: 3rem">
-                        <a href="{{ route('tamu') }}">
-                            <div class="card-tamu me-2">
+                    <div class="container-card">
+                        <a href="{{ route('tamu') }}" class="card-link">
+                            <div class="card-tamu">
                                 <i class='bx bx-user'></i>
                                 <h5>Tamu</h5>
                                 <p>Klik disini jika anda adalah tamu</p>
                             </div>
                         </a>
-                        <a href="{{ route('kurir') }}">
-                            <div class="card-kurir ms-2">
+                        <a href="{{ route('kurir') }}" class="card-link">
+                            <div class="card-kurir">
                                 <i class='bx bxs-package'></i>
                                 <h5>Kurir</h5>
                                 <p>Klik disini jika anda adalah kurir</p>
                             </div>
                         </a>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-5 p-2" style="z-index: 20">
-                <div class="image-wrapper d-flex align-item-center">
-                    <img src="img/lp.svg" class="img-fluid" alt="">
-                </div>
             </div>
         </div>
     </div>

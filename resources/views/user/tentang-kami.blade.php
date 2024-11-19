@@ -24,7 +24,7 @@
     @include('user.components.navbar')
 
     <div class="container">
-        <img src="img/smkn.png" width="100%">
+        <img src="img/smkn.png" class="jumbotron" width="100%">
         <div class="card-about">
             <h2 class="custom-h2 text-black">Datanglah dengan senang hati! Kami layani sepenuh hati</h2>
             <p class="p-custom text-black">Mari kita membuat pengalaman kunjungan anda lebih mudah dan aman.</p>

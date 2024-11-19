@@ -9,18 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class pegawaiMailKurir extends Mailable
+class tamuDatang extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $kedatanganEkspedisi;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($kedatanganEkspedisi)
+    public $tamuData;
+
+    public function __construct($tamuData)
     {
-        $this->kedatanganEkspedisi = $kedatanganEkspedisi;
+        $this->tamuData = $tamuData;
     }
 
     /**
@@ -29,7 +29,7 @@ class pegawaiMailKurir extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'SMKN 11 Bandung - Pendataan Tamu'
+            subject: 'SMKN 11 Bandung - Pendataan Tamu',
         );
     }
 
@@ -39,7 +39,7 @@ class pegawaiMailKurir extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.pegawai-notif-kurir',
+            view: 'emails.tamu-datang',
         );
     }
 
@@ -53,11 +53,9 @@ class pegawaiMailKurir extends Mailable
         return [];
     }
 
-
     public function build()
     {
-        return $this->view('emails.pegawai-notif-kurir')
-                    ->subject('Paket!')
-                    ->with(['kedatanganEkspedisi' => $this->kedatanganEkspedisi]);
+        return $this->subject('Notifikasi Kedatangan Tamu')
+                    ->view('emails.tamu-datang');
     }
 }

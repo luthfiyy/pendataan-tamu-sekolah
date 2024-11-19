@@ -43,10 +43,7 @@
 
         {{-- container fluid --}}
         <div class="container">
-            <div class="ms-1 mt-5 mb-2 me-1 d-flex align-items-center justify-content-between">
-                <x-breadcrumb />
-                @include('pegawai.components.breadcrumb')
-            </div>
+            <x-breadcrumb />
             <div class="row">
                 <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                     <div class="card">
@@ -124,162 +121,120 @@
             <div class="row">
                 <div class="col-6 mt-4 container-detail">
                     <div class="detail-kunjungan p-4 ">
-                        @if (isset($selectedTamu))
-                            {{-- <div id="detail-content" class="tamu-detail-card">
-                                <div class="tamu-header">
-                                    <img src="{{ $selectedTamu['foto'] ? asset('storage/img-tamu/' . $selectedTamu['foto']) : asset('img/logo-hitam.png') }}"
-                                        alt="Foto Tamu" class="tamu-avatar">
-                                    <h2 class="tamu-name">{{ $selectedTamu['nama_tamu'] }}</h2>
-                                    <span class="font-weight-bold text-white">{{ $selectedTamu['email'] }}</span>
-                                    <span class="tamu-status status-{{ strtolower($selectedTamu['status']) }}">
-                                        {{ $selectedTamu['status'] }}
-                                    </span>
-                                </div>
-                                <div class="tamu-info">
-                                    <div class="info-group">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <p>{{ $selectedTamu['alamat_tamu'] }}</p>
-                                    </div>
-                                    <div class="info-group">
-                                        <i class="fas fa-phone"></i>
-                                        <p>{{ $selectedTamu['no_telp_tamu'] }}</p>
-                                    </div>
-                                    <div class="info-group">
-                                        <i class="fas fa-building"></i>
-                                        <p>{{ $selectedTamu['instansi'] }}</p>
-                                    </div>
-                                    <div class="info-group">
-                                        <i class="fas fa-comments"></i>
-                                        <p>{{ $selectedTamu['tujuan'] }}</p>
-                                    </div>
-                                    <div class="info-group">
-                                        <i class="fas fa-user-tie"></i>
-                                        <p>{{ $selectedTamu['nama_user'] }}</p>
-                                    </div>
-                                    <div class="info-group">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <p>{{ $selectedTamu['waktu_perjanjian'] }}</p>
+                        <p class="p-2">Daftar Kunjungan yang <b>Diterima</b></p>
+                        <form method="GET" action="{{ route('pegawai.manajemen-kunjungan') }}">
+                            <!-- Filter Dropdown -->
+                            <div class="d-flex justify-content-end">
+                                <div class="filterStatus d-flex align-items-center mt-3 mb-4 w-45">
+                                    <div class="filter-container w-100">
+                                        <i class='bx bx-filter-alt'></i>
+                                        <select id="filterStatus" name="filterStatus" onchange="this.form.submit()">
+                                            <option value="Belum Datang"
+                                                {{ $filterStatus == 'Belum Datang' ? 'selected' : '' }}>
+                                                Belum Datang
+                                            </option>
+                                            <option value="Sudah Datang"
+                                                {{ $filterStatus == 'Sudah Datang' ? 'selected' : '' }}>
+                                                Sudah Datang
+                                            </option>
+                                            <option value="Tidak Datang"
+                                                {{ $filterStatus == 'Tidak Datang' ? 'selected' : '' }}>
+                                                Tidak Datang
+                                            </option>
+                                        </select>
+                                        <i class='bx bx-chevron-down'></i>
                                     </div>
                                 </div>
-                            </div> --}}
-                            {{-- <div id="detail-content" class="tamu-card">
-                                <div class="tamu-header">
-                                    <img src="{{ $selectedTamu['foto'] ? asset('storage/img-tamu/' . $selectedTamu['foto']) : asset('img/logo-hitam.png') }}"
-                                         alt="Foto Tamu" class="tamu-avatar">
-                                    <h2 class="tamu-name">{{ $selectedTamu['nama_tamu'] }}</h2>
-                                    <span class="tamu-status status-{{ strtolower($selectedTamu['status']) }}">
-                                        {{ $selectedTamu['status'] }}
-                                    </span>
-                                </div>
-                                <div class="tamu-info">
-                                    <div class="info-item">
-                                        <span class="info-label">Instansi</span>
-                                        <span class="info-value">{{ $selectedTamu['instansi'] }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Tujuan</span>
-                                        <span class="info-value">{{ $selectedTamu['tujuan'] }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Bertemu</span>
-                                        <span class="info-value">{{ $selectedTamu['nama_user'] }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Waktu</span>
-                                        <span class="info-value">{{ $selectedTamu['waktu_perjanjian'] }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Kontak</span>
-                                        <span class="info-value">{{ $selectedTamu['no_telp_tamu'] }}</span>
-                                    </div>
-                                </div>
-                            </div> --}}
-                            <div class="guest-card-compact">
-                                <div class="tamu-header align-items-center"
-                                    style="display: flex; flex-direction: column;">
-                                    <img src="{{ $selectedTamu['foto'] ? asset('storage/img-tamu/' . $selectedTamu['foto']) : asset('img/logo-hitam.png') }}"
-                                        alt="Foto Tamu" class="tamu-avatar">
-                                    <h2 class="tamu-name">{{ $selectedTamu['nama_tamu'] }}</h2>
-                                    <span class="tamu-email font-weight-bold">{{ $selectedTamu['email'] }}</span>
-                                    <!-- Email di atas status -->
-                                    <span class="tamu-status status-{{ strtolower($selectedTamu['status']) }}">
-                                        {{ $selectedTamu['status'] }}
-                                    </span>
-                                </div>
+                            </div>
+                        </form>
 
-                                <div class="card-body">
-                                    <div class="info-list">
-                                        <div class="info-item">
-                                            <span class="info-label">Alamat</span>
-                                            <span class="info-value">{{ $selectedTamu['alamat_tamu'] }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">No Telepon</span>
-                                            <span class="info-value">{{ $selectedTamu['no_telp_tamu'] }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Instansi</span>
-                                            <span class="info-value">{{ $selectedTamu['instansi'] }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Tujuan</span>
-                                            <span class="info-value">{{ $selectedTamu['tujuan'] }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Pegawai yang dituju</span>
-                                            <span class="info-value">{{ $selectedTamu['nama_user'] }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Waktu Perjanjian</span>
-                                            <span class="info-value">{{ $selectedTamu['waktu_perjanjian'] }}</span>
+                        @php
+                            use Carbon\Carbon;
+                        @endphp
+
+                        @foreach ($kedatanganTamuDiterima as $tamu)
+                            @php
+                                $currentDateTime = Carbon::now();
+                                $waktuPerjanjian = Carbon::parse($tamu->waktu_perjanjian);
+                                $isTamuLate =
+                                    !$tamu->waktu_kedatangan &&
+                                    $waktuPerjanjian->copy()->addMinutes(30)->lessThan($currentDateTime);
+                            @endphp
+
+                            <div class="visitor-item p-2">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="manajemen-tamu d-flex align-items-center justify-content-between p-2">
+                                        <div class="d-flex align-items-center">
+                                            <button type="button" class="avatar-kunjungan flex-shrink-0 me-3"
+                                                id="detail-tamu"
+                                                style="border: none; background: none; cursor: pointer;"
+                                                data-bs-toggle="modal" data-bs-target="#tamuModal"
+                                                onclick="setTamuDetails({{ json_encode($tamu) }})">
+                                                <i class="fa-solid fa-address-card" style="font-size: 30px"></i>
+                                            </button>
+
+                                            <div class="p-2">
+                                                @if ($tamu->waktu_kedatangan)
+                                                    <span class="font-weight-bold text-xs waktu-perjanjian">
+                                                        Waktu kedatangan:
+                                                        {{ Carbon::parse($tamu->waktu_kedatangan)->translatedFormat('l, d/m/Y, H:i') }}
+                                                    </span>
+                                                @elseif($isTamuLate)
+                                                    <span
+                                                        class="font-weight-bold text-xs waktu-perjanjian text-danger">Tidak
+                                                        datang</span>
+                                                @else
+                                                    <span class="font-weight-bold text-xs waktu-perjanjian">Belum
+                                                        datang</span>
+                                                @endif
+
+                                                <p class="font-weight-bold text-sm p-0 nama-tamu">
+                                                    {{ ucwords(strtolower($tamu->tamu->nama)) }}
+                                                </p>
+                                                <p class="text-sm mb-0 ml-2 p-0">Bertemu dengan
+                                                    <span
+                                                        class="font-weight-bold text-sm pegawai">{{ $tamu->user->name }}</span>
+                                                </p>
+                                                <span class="bg-gradient-success mt-1">Status
+                                                    {{ $tamu->status }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @else
-                            <p class="m-5 text-center">Pilih tamu untuk melihat detail.</p>
-                        @endif
+                        @endforeach
+
+                        <div class="footer-detail my-3">
+                            {{ $kedatanganTamuDiterima->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 mt-4 container-detail">
-                    <div class="kunjungan p-4">
-                        <p>Aktivitas Kunjungan</p>
-                        <div class="d-flex justify-content-between align-items-center mb-5 mt-3">
+                    <div class="kunjungan p-4 d-flex flex-column" style="height: 100%;">
+                        <p class="p-2">Aktivitas Kunjungan</p>
+                        <div class="d-flex justify-content-between align-items-center ">
 
-                            <div class="search d-flex align-items-center ms-auto mb-0 mt-0 me-2">
+                            <div class="search d-flex align-items-center ms-auto me-2 mb-4 mt-3">
                                 <div class="d-flex align-items-center">
                                     <i class='bx bx-search'></i>
-                                    <input type="text" id="searchTamu" placeholder="Cari..">
+                                    <form id="searchForm" method="GET"
+                                        action="{{ route('pegawai.manajemen-kunjungan') }}">
+                                        <input type="text" id="searchTamu" name="search" placeholder="Cari.."
+                                            value="{{ request('search') }}" oninput="submitSearch()">
+                                    </form>
                                 </div>
                             </div>
-                            {{-- <div class="filterStatus d-flex align-items-center mt-0 mb-0">
-                                <div class="filter-container">
-                                    <i class='bx bx-filter-alt'></i>
-                                    <select id="filterStatus" onchange="filterByStatus()">
-                                        <option value="Menunggu konfirmasi" {{ $status === 'Menunggu konfirmasi' ? 'selected' : '' }}>
-                                            Menunggu konfirmasi
-                                        </option>
-                                        <option value="Diterima" {{ $status === 'Diterima' ? 'selected' : '' }}>
-                                            Diterima
-                                        </option>
-                                        <option value="Ditolak" {{ $status === 'Ditolak' ? 'selected' : '' }}>
-                                            Ditolak
-                                        </option>
-                                    </select>
-                                    <i class='bx bx-chevron-down'></i>
-                                </div>
-                            </div> --}}
-                            <div class="refresh-button d-flex  justify-content-center ms-2 mb-0 mt-0 me-2">
-                                <a href="{{ route('pegawai.manajemen-kunjungan') }}">
+                            <div class="refresh-button d-flex  justify-content-center ms-2 mb-4 mt-3 me-2">
+                                <a href="{{ route('FO.manajemen-kunjungan') }}">
                                     <i class='bx bx-refresh' style="font-size:  35px"></i>
                                 </a>
                             </div>
 
                         </div>
 
-                        @if (session('status'))
+                        @if (session('success'))
                             <div class="alert alert-success">
-                                {{ session('status') }}
+                                {{ session('success') }}
                             </div>
                         @endif
                         @if (session('error'))
@@ -289,101 +244,71 @@
                         @endif
 
 
-                        <div id="visitor-list">
-                            {{-- @if ($kedatanganTamu->isEmpty() && request('status') === 'Diterima')
-                                <p class="text-center text-sm">Tidak ada tamu yang Diterima</p>
-                            @elseif ($kedatanganTamu->isEmpty() && request('status') === 'Ditolak')
-                                <p class="text-center text-sm">Tidak ada tamu yang Ditolak</p>
-                            @elseif ($kedatanganTamu->isEmpty() && request('status') === 'Menunggu konfirmasi')
-                                <p class="text-center text-sm">Tidak ada tamu yang menunggu konfirmasi</p>
-                            @elseif ($kedatanganTamu->isEmpty())
-                                <p class="text-center text-sm">Tidak ada tamu yang menunggu konfirmasi</p>
-                            @else --}}
-                            {{-- <hr class="dark horizontal my-0"> --}}
-                            @foreach ($kedatanganTamu as $tamu)
-                                @php
-                                    $waktuPerjanjian = \Carbon\Carbon::parse($tamu->waktu_perjanjian);
-                                    $currentTime = \Carbon\Carbon::now();
-                                @endphp
-                                <div class="visitor-item" data-id="{{ $tamu->id_kedatanganTamu }}"
-                                    data-status="{{ $tamu->status }}">
-                                    <div class="d-flex align-items-center justify-content-between ">
-                                        <div
-                                            class="manajemen-tamu d-flex align-items-center justify-content-between mb-3 p-2">
-                                            <div class=" d-flex align-items-center">
-                                                <form action="{{ route('pegawai.manajemen-kunjungan') }}"
-                                                    method="GET" style="display: inline;">
-                                                    <input type="hidden" name="selected_tamu"
-                                                        value="{{ $tamu->id_kedatanganTamu }}">
-                                                    @if ($status !== 'Menunggu konfirmasi')
-                                                        <input type="hidden" name="status"
-                                                            value="{{ $status }}">
-                                                    @endif
-                                                    <button type="submit" class="avatar-kunjungan flex-shrink-0 me-3"
+                        <div id="visitor-list" class="flex-grow-1 overflow-auto">
+                            @if ($kedatanganTamuMenunggu->isEmpty())
+                                <p class="text-center mt-4">Tidak ada data tamu yang ditemukan.</p>
+                            @else
+                                @foreach ($kedatanganTamuMenunggu as $tamu)
+                                    <div class="visitor-item p-2" data-id="{{ $tamu->id_kedatanganTamu }}"
+                                        data-status="{{ $tamu->status }}">
+                                        <div class="d-flex align-items-center justify-content-between ">
+                                            <div
+                                                class="manajemen-tamu d-flex align-items-center justify-content-between mb-3 p-2">
+                                                <div class=" d-flex align-items-center">
+                                                    <button type="button" class="avatar-kunjungan flex-shrink-0 me-3"
                                                         id="detail-tamu"
-                                                        style="border: none; background: none; cursor: pointer;">
+                                                        style="border: none; background: none; cursor: pointer;"
+                                                        data-bs-toggle="modal" data-bs-target="#tamuModal"
+                                                        onclick="setTamuDetails({{ json_encode($tamu) }})">
                                                         <i class="fa-solid fa-address-card"
                                                             style="font-size: 30px"></i>
                                                     </button>
-                                                </form>
-                                                <div class="p-2">
-                                                    <span class="font-weight-bold text-xs">Waktu
-                                                        perjanjian:
-                                                        {{ \Carbon\Carbon::parse($tamu->waktu_perjanjian)->translatedFormat('l, d/m/Y, H:i') }}</span>
-                                                    <p class="font-weight-bold text-sm p-0">
-                                                        {{ $tamu->tamu->nama }}
-                                                    </p>
-                                                    <p class="text-sm mb-0 ml-2 p-0">
-                                                        Bertemu dengan
-                                                        <span
-                                                            class="font-weight-bold text-sm">{{ $tamu->user->name }}</span>
-                                                    </p>
-                                                    {{-- <p class="p-0 text-sm">{{ $tamu->status }}</p> --}}
-                                                    @if ($tamu->status === 'Diterima')
-                                                        <span class="bg-gradient-success mt-1">Status
-                                                            {{ $tamu->status }}</span>
-                                                    @elseif ($tamu->status === 'Ditolak')
-                                                        <span class="bg-gradient-danger mt-1">Status
-                                                            {{ $tamu->status }}</span>
-                                                    @else
+
+                                                    <div class="p-2">
+                                                        <span class="font-weight-bold text-xs waktu-perjanjian">Waktu
+                                                            perjanjian:
+                                                            {{ \Carbon\Carbon::parse($tamu->waktu_perjanjian)->translatedFormat('l, d/m/Y, H:i') }}</span>
+                                                        <p class="font-weight-bold text-sm p-0 nama-tamu">
+                                                            {{ ucwords(strtolower($tamu->tamu->nama)) }}</p>
+                                                        <p class="text-sm mb-0 ml-2 p-0">Bertemu dengan
+                                                            <span
+                                                                class="font-weight-bold text-sm pegawai">{{ $tamu->user->name }}</span>
+                                                        </p>
                                                         <span class="bg-gradient-dark mt-1">Status
                                                             {{ $tamu->status }}</span>
-                                                    @endif
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            @if (request('status') !== 'Diterima' && request('status') !== 'Ditolak')
+
                                                 <div class="form-status pe-3">
                                                     <form
                                                         action="{{ route('pegawai.update-status', $tamu->id_kedatanganTamu) }}"
-                                                        method="POST" class="form-update-status">
+                                                        method="POST">
                                                         @csrf
                                                         <input type="hidden" name="status" value="Diterima">
-                                                        <button type="submit" class="button-success btn-accept"
-                                                            id="terima-button">
+                                                        <button type="submit" class="button-success btn-accept">
                                                             <i class="fa-solid fa-check"></i>
                                                         </button>
                                                     </form>
                                                     <form
                                                         action="{{ route('pegawai.update-status', $tamu->id_kedatanganTamu) }}"
-                                                        method="POST" class="form-update-status">
+                                                        method="POST">
                                                         @csrf
                                                         <input type="hidden" name="status" value="Ditolak">
-                                                        <button type="submit" class="button-danger btn-reject"
-                                                            id="tolak-button">
+                                                        <button type="submit" class="button-danger btn-reject">
                                                             <i class="fa-solid fa-x"></i>
                                                         </button>
                                                     </form>
                                                 </div>
-                                            @endif
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
-                            {{-- @endif --}}
+                                @endforeach
+                            @endif
+                        </div>
 
-                            <div class="footer-detail mt-auto">
-                                {{ $kedatanganTamu->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
-                            </div>
+                        {{-- <div class="footer-detail pe-2 pb-2 pt-2 fixed-bottom position-relative"> --}}
+                        <div class="footer-detail mt-auto">
+                            {{ $kedatanganTamuMenunggu->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
                         </div>
                     </div>
                 </div>
@@ -394,8 +319,45 @@
 
         {{-- end container fluid --}}
 
+        <!-- Replace the existing modal HTML with this -->
+        <div id="rejectModal" class="modal fade" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Alasan Penolakan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <textarea id="keteranganTextarea" name="keterangan" class="form-control" rows="4"
+                            placeholder="Masukkan alasan penolakan"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="submitReject">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
+        <div class="modal fade" id="tamuModal" tabindex="-1" aria-labelledby="tamuModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tamuModalLabel">Detail Tamu</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="tamuDetails">
+                        <!-- Detail tamu akan diisi di sini -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </section>
 
@@ -416,7 +378,6 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
     <script>
-
         tippy('#terimaButton', {
             content: 'Terima',
         });
@@ -429,52 +390,32 @@
             content: 'Click Untuk Detail Tamu',
         })
 
-        // function filterByStatus() {
-        //     var filter = document.getElementById("filterStatus").value;
-        //     var currentUrl = new URL(window.location.href);
-        //     if (filter === "Menunggu konfirmasi") {
-        //         currentUrl.searchParams.delete('status');
-        //     } else {
-        //         currentUrl.searchParams.set('status', filter);
-        //     }
-        //     window.location.href = currentUrl.toString();
-        // }
+        function submitSearch() {
+            const form = document.getElementById('searchForm');
+            form.submit(); // Mengirimkan formulir
+        }
 
-        document.getElementById('searchTamu').addEventListener('input', function() {
-            const searchQuery = this.value.toLowerCase();
-            const visitorItems = document.querySelectorAll('#visitor-list .visitor-item');
-            let found = false;
-
-            visitorItems.forEach(function(item) {
-                const namaTamu = item.querySelector('.nama-tamu').textContent.toLowerCase();
-                const namaPegawai = item.querySelector('.pegawai').textContent.toLowerCase();
-                const waktuPerjanjian = item.querySelector('.waktu-perjanjian').textContent.toLowerCase();
-
-                if (namaTamu.includes(searchQuery) || namaPegawai.includes(searchQuery) || waktuPerjanjian
-                    .includes(searchQuery)) {
-                    item.style.display = '';
-                    found = true;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            // Menampilkan pesan jika tidak ada hasil
-            let tidakAdaHasil = document.getElementById('noResults');
-            if (!tidakAdaHasil) {
-                tidakAdaHasil = document.createElement('p');
-                tidakAdaHasil.id = 'noResults';
-                tidakAdaHasil.className = 'text-center text-sm';
-                tidakAdaHasil.textContent = 'Tidak ada hasil ditemukan';
-                document.getElementById('visitor-list').appendChild(tidakAdaHasil);
-            }
-
-            if (found) {
-                tidakAdaHasil.style.display = 'none';
-            } else {
-                tidakAdaHasil.style.display = 'block';
-            }
-        });
+        function setTamuDetails(tamu) {
+            const tamuDetails = `
+                    <div class="tamu-header align-items-center pt-0" style="display: flex; flex-direction: column;">
+                        <img src="${tamu.foto ? '/storage/img-tamu/' + tamu.foto : '/img/logo-hitam.png'}" alt="Foto Tamu" class="tamu-avatar">
+                        <h2 class="tamu-name">${tamu.tamu.nama || 'Tidak ada'}</h2>
+                        <span class="tamu-email font-weight-bold">${tamu.tamu.email || 'Tidak ada'}</span>
+                        <span class="tamu-status status-${tamu.status ? tamu.status.toLowerCase() : 'default'}">${tamu.status || 'Tidak ada'}</span>
+                    </div>
+                    <div class="info-list">
+                        <div class="d-flex justify-content-center">
+                            <div class="info-item w-100"><span class="info-label">Alamat</span><span class="info-value">${tamu.tamu.alamat || 'Tidak ada'}</span></div>
+                            <div class="info-item w-100"><span class="info-label">No Telepon</span><span class="info-value">${tamu.tamu.no_telp || 'Tidak ada'}</span></div>
+                        </div>
+                        <div class="info-item"><span class="info-label">Instansi</span><span class="info-value">${tamu.instansi || 'Tidak ada'}</span></div>
+                        <div class="info-item"><span class="info-label">Tujuan</span><span class="info-value">${tamu.tujuan || 'Tidak ada'}</span></div>
+                        <div class="info-item"><span class="info-label">Pegawai yang dituju</span><span class="info-value">${tamu.user.name || 'Tidak ada'}</span></div>
+                        <div class="info-item"><span class="info-label">Waktu Perjanjian</span><span class="info-value">${tamu.waktu_perjanjian || 'Tidak ada'}</span></div>
+                    </div>
+                `;
+            document.getElementById('tamuDetails').innerHTML = tamuDetails;
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"

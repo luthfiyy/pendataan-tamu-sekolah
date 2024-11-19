@@ -5,10 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
     {{-- css --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/material-dashboard.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('css/material-dashboard.css') }}"> --}}
+    <link rel="stylesheet" href="{{ asset('css/core.css') }}">
 
     {{-- icon --}}
     <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
@@ -17,8 +20,16 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
 
-
-
+    <style>
+        #datePickerContainer {
+            z-index: 1000;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            right: 0;
+        }
+    </style>
 
     <title>GuBook</title>
 </head>
@@ -26,37 +37,116 @@
 <body style="overflow-x:hidden;">
 
     {{-- sidebar start --}}
-    @include('FO.components.sidebar')
+    @include('fo.components.sidebar')
 
     {{-- end sidebar --}}
 
     {{-- section start --}}
     <section class="home">
+        <div class="container mt-4 ps-3">
+            @include('fo.components.navbar')
+            <x-breadcrumb />
+        </div>
         <div class="row">
-            <div class="col-12">
-                @include('FO.components.navbar')
-                <div class="mt-4 mb-5" style="margin-left: 30px">
-                    <x-breadcrumb />
-                </div>
+            <div class="col-12 ms-3">
 
+                <div class="card ms-0" style="max-width: 1185px">
 
-                <div class="card my-4" style="max-width: 1340px">
-
-                    <div class="card-body px-0 pb-2" style="width: 100%">
+                    <div class="card-body px-0 pb-2">
                         <div class="m-4 d-flex justify-content-between align-items-center">
-                            <div class="search d-flex align-items-center">
-                                <i class='bx bx-search'></i>
-                                <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Cari..">
+                            <x-search-filter-kurir :search="request('search')" :searchBy="request('search_by')" action="/FO/laporan-kurir"
+                                :options="[
+                                    'nama_kurir' => 'Nama Kurir',
+                                    'ekspedisi' => 'Ekspedisi',
+                                    'no_telp' => 'No Telepon Kurir',
+                                    'pegawai' => 'Pegawai yang dituju',
+                                ]" />
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative h-100">
+                                    <div class="ms-1 filterStatus">
+                                        <button id="toggleDatePicker" style="border:none; background:none;"
+                                            class="d-flex align-items-center"><i class='bx bxs-calendar m-0'
+                                                style="font-size: 30px;"></i></button>
+                                    </div>
+                                    <div id="datePickerContainer" class=" d-none position-absolute">
+                                        <form action="{{ route('FO.laporan-kurir') }}" method="GET"
+                                            class="d-flex flex-column w-100">
+                                            <div class="input-group me-2 w-100">
+                                                <input type="date" name="start_date" class="form-control mb-1"
+                                                    placeholder="Tanggal Mulai" value="{{ request('start_date') }}">
+                                            </div>
+                                            <div class="input-group me-2 w-100 mb-1">
+                                                <input type="date" name="end_date" class="form-control"
+                                                    placeholder="Tanggal Akhir" value="{{ request('end_date') }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="filterStatus ms-2">
+                                    <button style="border:none; background:none;" type="button"
+                                        class="d-flex align-items-center" data-bs-toggle="offcanvas"
+                                        data-bs-target="#offcanvasDateFilte" aria-controls="offcanvasDateFilter">
+                                        <i class='bx bxs-file-pdf m-0' style="color: #707070; font-size: 30px;"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="export">
-                                <a href="{{ route('kurir.export') }}"
-                                    class="d-flex align-items-center rounded-lg px-3 py-1 text-green-500 transition-all ease-in-out hover:btn hover:btn-success hover:btn-sm">
-                                    <i class="fa-solid fa-file-export"></i>
-                                    Export
-                                </a>
+                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasDateFilte"
+                                aria-labelledby="offcanvasNotificationLabel">
+                                <div class="offcanvas-header">
+                                    <h5 id="offcanvasNotificationLabel">Download Rekapan PDF</h5>
+                                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <form id="dateRangeForm">
+                                        <div class="mb-3">
+                                            <label for="reportType">Jenis Laporan:</label>
+                                            <select id="reportType" class="form-select mb-3">
+                                                <option value="summary">Rekapan Kurir</option>
+                                                <option value="detail">Detail Kurir</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="filterType">Pilih Filter:</label>
+                                            <select id="filterType" class="form-select"
+                                                style="border: 1px solid #d9dee3;">
+                                                <option value="month" selected>Filter Bulan</option>
+                                                <option value="date_range">Filter Rentang Tanggal</option>
+                                                <option value="year">Filter Tahun</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Month Filter -->
+                                        <div id="monthFilter" style="display:none;">
+                                            <label for="monthInput">Pilih Bulan:</label>
+                                            <input type="month" id="monthInput" class="form-control">
+                                        </div>
+
+                                        <!-- Date Range Filter -->
+                                        <div id="dateRangeFilter" style="display:none;">
+                                            <label for="startDate">Mulai Tanggal:</label>
+                                            <input type="date" id="startDate" class="form-control">
+                                            <label for="endDate">Sampai Tanggal:</label>
+                                            <input type="date" id="endDate" class="form-control">
+                                        </div>
+
+                                        <!-- Year Filter -->
+                                        <div id="yearFilter" style="display:none;">
+                                            <label for="yearInput">Pilih Tahun:</label>
+                                            <input type="number" id="yearInput" class="form-control">
+                                        </div>
+
+
+                                        <button type="submit" class="btn btn-primary mt-3 w-100">Generate
+                                            PDF</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                        <div class="table-responsive p-4">
+                        <div class="table-responsive p-3">
                             <table class="table align-items-center mb-0" id="laporanTable">
                                 <thead>
                                     <tr>
@@ -77,48 +167,41 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if ($ekspedisi->isEmpty())
+                                    @foreach ($ekspedisi as $index => $kedatanganEkspedisi)
                                         <tr>
-                                            <td colspan="5" class="text-center p-4 text-sm">
-                                                <h6 class="text-center p-2 text-sm">Tidak Ada Laporan Ekspedisi</h6>
+                                            <td>
+                                                <h6 class="text-center p-3 mb-0 text-sm">
+                                                    {{ $ekspedisi->firstItem() + $index }}</h6>
                                             </td>
-                                        </tr>
-                                    @else
-                                        @foreach ($ekspedisi as $index => $kedatanganEkspedisi)
-                                            <tr>
-                                                <td>
-                                                    <h6 class="p-2 mb-0 text-sm">
-                                                        {{ $index + 1 }}</h6>
-                                                </td>
-                                                <td>
-                                                    <h6 class="p-2 mb-0 text-sm">
-                                                        {{ ucwords(strtolower($kedatanganEkspedisi->ekspedisi->nama_kurir))}}</h6>
-                                                </td>
-                                                <td>
-                                                    <h6 class="p-2 mb-0 text-sm">
-                                                        {{ $kedatanganEkspedisi->ekspedisi->ekspedisi }}</h6>
-                                                </td>
-                                                <td>
-                                                    <h6 class="p-2 mb-0 text-sm">
-                                                        {{ $kedatanganEkspedisi->ekspedisi->no_telp }}</h6>
-                                                </td>
-                                                <td class="align-middle text-center">
+                                            <td>
+                                                <h6 class="text-center p-3 mb-0 text-sm">
+                                                    {{ ucwords(strtolower($kedatanganEkspedisi->ekspedisi->nama_kurir)) }}
+                                                </h6>
+                                            </td>
+                                            <td>
+                                                <h6 class="text-center p-3 mb-0 text-sm">
+                                                    {{ $kedatanganEkspedisi->ekspedisi->ekspedisi }}</h6>
+                                            </td>
+                                            <td>
+                                                <h6 class="text-center p-3 mb-0 text-sm">
+                                                    {{ $kedatanganEkspedisi->ekspedisi->no_telp }}</h6>
+                                            </td>
+                                            <td class="align-middle text-center">
 
 
-                                                    <h6 class="p-2 mb-0 text-sm">
-                                                        {{ $kedatanganEkspedisi->user->name }}</h6>
-                                                </td>
-                                                <td>
-                                                    <h6 class="p-2 mb-0 text-sm">
-                                                        {{ $kedatanganEkspedisi->tanggal_waktu ? \Carbon\Carbon::parse($kedatanganEkspedisi->tanggal_waktu)->translatedFormat('l, d/m/Y H:i') : '' }}
-                                                    </h6>
-                                                </td>
-                                                <td>
-                                                    <i class="fa-solid fa-image image-icon" style="color: #707070"
-                                                        data-src="{{ $kedatanganEkspedisi->foto ? asset('storage/img-kurir/' . $kedatanganEkspedisi->foto) : asset('img/logo-hitam.png') }}"></i>
-                                                </td>
-                                        @endforeach
-                                    @endif
+                                                <h6 class="text-center p-3 mb-0 text-sm">
+                                                    {{ $kedatanganEkspedisi->user->name }}</h6>
+                                            </td>
+                                            <td>
+                                                <h6 class="p-3 mb-0 text-sm text-center">
+                                                    {{ $kedatanganEkspedisi->tanggal_waktu ? \Carbon\Carbon::parse($kedatanganEkspedisi->tanggal_waktu)->translatedFormat('l, d/m/Y H:i') : '' }}
+                                                </h6>
+                                            </td>
+                                            <td>
+                                                <i class="fa-solid fa-image image-icon ms-3" style="color: #707070"
+                                                    data-src="{{ $kedatanganEkspedisi->foto ? asset('storage/img-kurir/' . $kedatanganEkspedisi->foto) : asset('img/logo-hitam.png') }}"></i>
+                                            </td>
+                                    @endforeach
                                     </tr>
                                 </tbody>
                             </table>
@@ -131,98 +214,48 @@
             </div>
         </div>
     </section>
+
     {{-- section end --}}
     <div id="imageModal" class="modal">
         <span class="close">&times;</span>
         <img class="modal-content" id="modalImage">
     </div>
 
-    <script src="{{ asset('js/script.js') }}"></script>
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered"
+            style="max-width: 60vw; margin: 1rem auto; justify-content: center;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfPreviewModalLabel">Preview PDF</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pb-0">
+                    <!-- PDF Preview Container -->
+                    <div class="pdf-preview-container"
+                        style="height: calc(85vh - 180px); width: 100%; border: 1px solid #dee2e6; margin-bottom: 1rem;">
+                        <iframe id="pdfPreviewFrame" style="width: 100%; height: 100%; border: none;"></iframe>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <i class='bx bx-info-circle me-2'></i>
+                        PDF telah berhasil dibuat. Anda dapat melihat preview di atas atau mengunduhnya.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class='bx bx-x'></i> Tutup
+                    </button>
+                    <button type="button" class="btn btn-primary" id="downloadPdfBtn">
+                        <i class='bx bx-download'></i> Unduh PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ asset('js/laporan-kurir.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTable
-            var table = $('#laporanTable').DataTable({
-                "paging": false,
-                "searching": true, // Disable DataTables' default search
-                "ordering": true,
-                "info": false
-            });
-
-            // Custom search input functionality
-            $('#myInput').on('keyup', function() {
-                table.search(this.value).draw(); // Use DataTables' search API
-            });
-
-            $('#laporanTable_filter').hide();
-        });
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const table = document.querySelector('#laporanTable');
-            const headers = table.querySelectorAll('th');
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-            headers.forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    const isAscending = header.classList.contains('sorted-asc');
-                    const newRows = rows.sort((rowA, rowB) => {
-                        const cellA = rowA.children[index].innerText.trim();
-                        const cellB = rowB.children[index].innerText.trim();
-                        return isAscending ? cellB.localeCompare(cellA) : cellA
-                            .localeCompare(cellB);
-                    });
-
-                    table.querySelector('tbody').append(...newRows);
-
-                    headers.forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
-                    header.classList.toggle('sorted-asc', !isAscending);
-                    header.classList.toggle('sorted-desc', isAscending);
-                });
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var modal = document.getElementById('imageModal');
-            var modalImg = document.getElementById("modalImage");
-            var closeBtn = document.getElementsByClassName("close")[0];
-
-            // Ambil semua elemen dengan kelas avatar-l
-            var images = document.querySelectorAll('.image-icon');
-
-            // Tambahkan event listener untuk setiap gambar
-            images.forEach(function(img) {
-                img.onclick = function() {
-                    modal.style.display = "flex";
-                    modalImg.src = this.getAttribute(
-                        'data-src'); // Ambil URL gambar dari atribut data-src
-                    setTimeout(() => {
-                        modal.classList.add('show'); // Tambahkan kelas show untuk animasi
-                    }, 10);
-                }
-            });
-
-            // Fungsi untuk menutup modal
-            function closeModal() {
-                modal.classList.remove('show'); // Hapus kelas show untuk animasi
-                setTimeout(() => {
-                    modal.style.display = "none";
-                }, 300); // Sesuaikan dengan durasi transisi
-            }
-
-            // Tutup modal saat tombol close diklik
-            closeBtn.onclick = closeModal;
-
-            // Tutup modal saat klik di luar gambar
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    closeModal();
-                }
-            }
-        });
-
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 </body>
 
 </html>

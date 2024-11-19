@@ -210,7 +210,7 @@
                                 </div> --}}
 
                         </div>
-                        <input type="submit" value="Kirim" class="shadow-primary ms-0 me-0 mt-2 mb-0">
+                        <input type="submit" value="Kirim" class="shadow-primary ms-0 me-0 mt-2 mb-2">
                     </form>
 
 
@@ -239,7 +239,7 @@
                 <div class="modal-body text-center" id="previewSection" style="display: none;">
                     <img id="foto-preview" src="" alt="Foto Preview" style="margin-top: 10px;">
                 </div>
-                <div class="d-flex justify-content-center pe-3">
+                <div class="d-flex justify-content-center pe-3 mb-3">
                     <button type="button" class="btn btn-secondary me-3" id="backToCamera"
                         style="display: none;">Foto
                         Kembali</button>
@@ -254,7 +254,8 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center">
                 <div class="modal-header d-flex flex-column align-items-center">
-                    <img src="{{ asset('img/success.svg') }}" alt="" width="300px" id="successImage" style="margin-left: 0; margin-top: -13rem;">
+                    <img src="{{ asset('img/success.svg') }}" alt="" width="300px" id="successImage"
+                        style="margin-left: 0; margin-top: -13rem;">
                     <img src="{{ asset('img/error.svg') }}" alt="" width="300px" id="errorImage"
                         style="display: none;">
                     <div id="modalMessage">
@@ -490,6 +491,8 @@
         //         otherInput.disabled = true;
         //     }
         // });
+
+        
         document.getElementById('addForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var form = this;
@@ -508,25 +511,42 @@
                     var daftarModal = new bootstrap.Modal(document.getElementById('daftarModal'));
 
                     if (data.success) {
-                        // Success case
                         document.getElementById('successImage').style.display = 'block';
                         document.getElementById('errorImage').style.display = 'none';
                         document.getElementById('modalTitle').textContent = 'Terima Kasih!';
                         document.getElementById('modalText').textContent = 'Data berhasil terkirim.';
+
+                        // Reset form dan elemen terkait
+                        form.reset();
+
+                        // Reset Select2 untuk pegawai
+                        $('.pegawai-dituju').val('').trigger('change');
+
+                        // Reset Select2 untuk ekspedisi
+                        $('.ekspedisi').val('').trigger('change');
+
+                        // Reset foto preview dan input
+                        document.getElementById('foto-name').value = '';
+                        document.getElementById('foto-data').value = '';
+                        document.getElementById('foto-preview').src = '';
+
+                        // Reset other input jika visible
+                        var otherInput = document.getElementById('otherInput');
+                        otherInput.classList.remove('visible');
+                        otherInput.querySelector('input').value = '';
+
                     } else {
-                        // Error case
                         document.getElementById('successImage').style.display = 'none';
                         document.getElementById('errorImage').style.display = 'block';
                         document.getElementById('modalTitle').textContent = 'Oops!';
                         document.getElementById('modalText').textContent =
                             'Terjadi kesalahan. Silakan coba lagi.';
                     }
-                    form.reset();
+
                     daftarModal.show();
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    // Show error modal
                     var daftarModal = new bootstrap.Modal(document.getElementById('daftarModal'));
                     document.getElementById('successImage').style.display = 'none';
                     document.getElementById('errorImage').style.display = 'block';
@@ -534,7 +554,6 @@
                     document.getElementById('modalText').textContent =
                         'Terjadi kesalahan. Silakan coba lagi nanti.';
                     daftarModal.show();
-                    form.reset();
                 });
         });
     </script>

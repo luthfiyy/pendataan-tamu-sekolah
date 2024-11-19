@@ -40,7 +40,6 @@
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link" href="#" data-bs-toggle="dropdown">
                     <div class="avatar">
-
                         <i class='bx bx-qr-scan' style="color: #000; font-size: 30px;"></i>
                     </div>
                 </a>
@@ -139,7 +138,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="reader" style="width:100%; height: 400px;"></div>
+                <div id="reader" style="width:100%; height: 259px;"></div>
                 <div id="result" style="margin-top: 10px;"></div>
             </div>
             <div class="modal-footer">
@@ -512,49 +511,48 @@
 </script> --}}
 
 <script>
-//     $(document).ready(function() {
-//     function fetchNewGuests() {
-//         $.ajax({
-//             url: '/tamu-baru', // Endpoint API Laravel
-//             method: 'GET',
-//             success: function(data) {
-//                 if (data.length > 0) {
-//                     var notificationBell = $('.bx-bell');
-//                     notificationBell.find('.badge').remove(); // Hapus badge sebelumnya jika ada
+    //     $(document).ready(function() {
+    //     function fetchNewGuests() {
+    //         $.ajax({
+    //             url: '/tamu-baru', // Endpoint API Laravel
+    //             method: 'GET',
+    //             success: function(data) {
+    //                 if (data.length > 0) {
+    //                     var notificationBell = $('.bx-bell');
+    //                     notificationBell.find('.badge').remove(); // Hapus badge sebelumnya jika ada
 
-//                     var notificationCount = $('<span>')
-//                         .addClass('badge bg-danger')
-//                         .text(data.length);
+    //                     var notificationCount = $('<span>')
+    //                         .addClass('badge bg-danger')
+    //                         .text(data.length);
 
-//                     // Tambahkan notifikasi count ke icon bell
-//                     notificationBell.append(notificationCount);
+    //                     // Tambahkan notifikasi count ke icon bell
+    //                     notificationBell.append(notificationCount);
 
-//                     // Masukkan tamu baru ke dalam offcanvas
-//                     var offcanvasContent = $('#offcanvasNotification .offcanvas-body');
-//                     offcanvasContent.empty(); // Kosongkan konten sebelumnya
+    //                     // Masukkan tamu baru ke dalam offcanvas
+    //                     var offcanvasContent = $('#offcanvasNotification .offcanvas-body');
+    //                     offcanvasContent.empty(); // Kosongkan konten sebelumnya
 
-//                     data.forEach(function(tamu) {
-//                         offcanvasContent.append('<p>Tamu baru: ' + tamu.nama + '</p>');
-//                     });
+    //                     data.forEach(function(tamu) {
+    //                         offcanvasContent.append('<p>Tamu baru: ' + tamu.nama + '</p>');
+    //                     });
 
-//                     // Tampilkan offcanvas
-//                     var offcanvasNotification = new bootstrap.Offcanvas('#offcanvasNotification');
-//                     offcanvasNotification.show();
-//                 }
-//             },
-//             error: function(xhr, status, error) {
-//                 console.error('Error fetching new guests:', error);
-//             }
-//         });
-//     }
+    //                     // Tampilkan offcanvas
+    //                     var offcanvasNotification = new bootstrap.Offcanvas('#offcanvasNotification');
+    //                     offcanvasNotification.show();
+    //                 }
+    //             },
+    //             error: function(xhr, status, error) {
+    //                 console.error('Error fetching new guests:', error);
+    //             }
+    //         });
+    //     }
 
-//     // Polling setiap 30 detik untuk memeriksa tamu baru
-//     setInterval(fetchNewGuests, 30000);
+    //     // Polling setiap 30 detik untuk memeriksa tamu baru
+    //     setInterval(fetchNewGuests, 30000);
 
-//     // Panggil fungsi pertama kali saat halaman dimuat
-//     fetchNewGuests();
-// });
-
+    //     // Panggil fungsi pertama kali saat halaman dimuat
+    //     fetchNewGuests();
+    // });
 
 
 
@@ -572,7 +570,7 @@
         const backToCameraButton = document.getElementById('backToCamera');
         const savePhotoButton = document.getElementById('save-photo');
 
-        console.log('Save Photo Button:', savePhotoButton); // Untuk debugging
+        console.log('Save Photo Button:', savePhotoButton);
 
         let html5QrCode;
 
@@ -605,6 +603,7 @@
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
                     console.log('QR Code scanning stopped.');
+                    html5QrCode.clear();
                 }).catch(err => {
                     console.error('Failed to stop scanning:', err);
                 });
@@ -622,11 +621,6 @@
             stopQRScanner();
         });
 
-        document.getElementById('tamuDetailModal').addEventListener('hidden.bs.modal', function() {
-            qrScanModal.show();
-            startQRScanner();
-        });
-
         function onScanSuccess(decodedText, decodedResult) {
             console.log(`QR Code detected: ${decodedText}`);
             stopQRScanner();
@@ -634,6 +628,15 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        const appointmentTime = new Date(data.waktu_perjanjian);
+                        const currentTime = new Date();
+                        const timeDifferenceInHours = (currentTime - appointmentTime) / (1000 * 60 * 60);
+
+                        if (timeDifferenceInMinutes > 30) {
+                            alert('QR Code tidak valid. Waktu perjanjian telah lewat lebih dari 30 menit.');
+                            qrScanModal.hide();
+                            return;
+                        }
                         document.getElementById('modalTamuName').innerText = data.name;
                         document.getElementById('modalTamuEmail').innerText = data.email;
                         document.getElementById('modalTamuPhone').innerText = data.phone;
@@ -696,7 +699,7 @@
             capturePhoto();
             backToCameraButton.style.display = 'block';
             savePhotoButton.style.display = 'block';
-            console.log('Save button should be visible now'); // Untuk debugging
+            console.log('Save button should be visible now');
         });
 
         backToCameraButton.addEventListener('click', function() {
@@ -709,14 +712,14 @@
         if (savePhotoButton) {
             savePhotoButton.addEventListener('click', function(event) {
                 event.preventDefault();
-                console.log('Save button clicked'); // Untuk debugging
+                console.log('Save button clicked');
 
                 canvas.toBlob(function(blob) {
                     const formData = new FormData();
                     formData.append('foto', blob, 'foto.png');
                     formData.append('id_tamu', document.getElementById('id_tamu').value);
 
-                    console.log('FormData:', formData); // Untuk debugging
+                    console.log('FormData:', formData);
 
                     fetch('{{ route('update-kedatangan') }}', {
                             method: 'POST',
@@ -729,27 +732,28 @@
                         })
                         .then(response => response.json())
                         .then(data => {
-                            console.log('Response Data:', data); // Debugging response data
+                            console.log('Response Data:', data);
                             if (data.success) {
                                 alert('Data berhasil diperbarui.');
                                 cameraModal.hide();
                                 tamuDetailModal.hide();
                                 qrScanModal.hide();
-                                startQRScanner();
+                                stopCamera();
+                                stopQRScanner();
                             } else {
-                                console.error('Update failed:', data
-                                    .message); // Log error message
-                                alert('Terjadi kesalahan: ' + data.message);
+                                throw new Error(data.message ||
+                                    'Terjadi kesalahan saat memperbarui data.');
                             }
                         })
-                        .catch(error => {
-                            console.error('Error updating data:', error);
-                            alert('Terjadi kesalahan saat memperbarui data.');
-                        });
+                    // .catch(error => {
+                    //     console.error('Error updating data:', error);
+                    //     alert(error.message ||
+                    //         'Terjadi kesalahan saat memperbarui data.');
+                    // });
                 }, 'image/png');
             });
         } else {
-            console.error('Save Photo Button not found'); // Untuk debugging
+            console.error('Save Photo Button not found');
         }
     });
 </script>

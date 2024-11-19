@@ -16,6 +16,7 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "@coreui/coreui": "^5.0.2"
+        "@coreui/coreui": "^5.0.2",
+        "chartjs-plugin-zoom": "^2.0.1"
     }
 }

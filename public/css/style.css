@@ -569,7 +569,8 @@ body.dark .card {
     border: 1px solid rgb(210, 210, 210);
 }
 
-.filterPtk i {
+.filterPtk i,
+.filterStatus i {
     margin-left: 5px;
     font-size: 20px;
     color: var(--text-color);
@@ -620,7 +621,9 @@ select#filterPtk:focus {
 }
 
 #filterPtk,
-#filterStatus {
+#filterStatus,
+#searchBy,
+#searchBy {
     width: 100%;
     padding: 8px 12px;
     font-size: 12px;
@@ -634,7 +637,9 @@ select#filterPtk:focus {
 }
 
 #filterPtk:focus,
-#filterStatus:focus {
+#filterStatus:focus,
+#searchBy:focus,
+#searchBy {
     outline: none;
 }
 
@@ -661,7 +666,8 @@ select#filterPtk:focus {
 
 /* Styling untuk options */
 #filterPtk option,
-#filterStatus option {
+#filterStatus option,
+#searchBy option {
     font-size: 14px;
     color: var(--text-color);
 }

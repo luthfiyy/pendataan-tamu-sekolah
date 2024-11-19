@@ -6,29 +6,50 @@
 
 <div class="card mb-4 p-4 ms-0" style="max-width: 1185px ">
     <div class="d-flex align-items-center justify-content-between">
-        <div class="search d-flex align-items-center">
-            <i class='bx bx-search'></i>
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Cari..">
-        </div>
+        <x-search-filter-pegawai :search="request('search')" :searchBy="request('search_by')" :status="request('status')" action="/admin/pegawai"
+            :options="[
+                'nip' => 'NIP',
+                'nama_pegawai' => 'Nama Pegawai',
+                'email_pegawai' => 'Email Pegawai',
+                'no_telp' => 'Nomor Telepon Pegawai',
+                'ptk' => 'PTK',
+            ]" />
         <div class="mt-3 d-flex justify-content-end align-items-center">
             {{-- search --}}
 
-            <div class="search d-flex align-items-center">
-                <select id="filterPtk" onchange="filterTableByPtk()">
-                    <option value="">PTK</option>
-                    <option value="produktif rpl">Produktif RPL</option>
-                    <option value="produktif akl">Produktif AKL</option>
-                    <option value="pendidikan pencasila">Pendidikan Pancasila</option>
-                    <option value="bahasa inggris">Bahasa Inggris</option>
-                    <option value="pjok">PJOK</option>
-                    <option value="produktif bdp">Produktif BDP</option>
-                    <option value="produktif MP">Produktif MP</option>
-                    <option value="tendik">Tendik</option>
-                </select>
-                <i class="bx bx-chevron-down position-absolute top-50 end-0 translate-middle-y me-2"></i>
-            </div>
+            {{-- <div class="filterPtk d-flex align-items-center">
+                <div class="filter-container">
+                    <i class='bx bx-filter-alt'></i>
+                    <select id="filterPtk">
+                        <option value="">PTK</option>
+                        <option value="produktif rpl" {{ request('ptk') == 'produktif rpl' ? 'selected' : '' }}>
+                            Produktif RPL</option>
+                        <option value="produktif akl" {{ request('ptk') == 'produktif akl' ? 'selected' : '' }}>
+                            Produktif AKL</option>
+                        <option value="pendidikan pencasila"
+                            {{ request('ptk') == 'pendidikan pencasila' ? 'selected' : '' }}>Pendidikan Pancasila
+                        </option>
+                        <option value="bahasa inggris" {{ request('ptk') == 'bahasa inggris' ? 'selected' : '' }}>Bahasa
+                            Inggris</option>
+                        <option value="pjok" {{ request('ptk') == 'pjok' ? 'selected' : '' }}>PJOK</option>
+                        <option value="produktif bdp" {{ request('ptk') == 'produktif bdp' ? 'selected' : '' }}>
+                            Produktif BDP</option>
+                        <option value="produktif MP" {{ request('ptk') == 'produktif MP' ? 'selected' : '' }}>Produktif
+                            MP</option>
+                        <option value="tendik" {{ request('ptk') == 'tendik' ? 'selected' : '' }}>Tendik</option>
+                    </select>
+                </div>
+            </div> --}}
+            <a href="{{ route('pegawai.download-format') }}" class="container-btn-file me-2 ms-2">
+                <svg class="svg-icon" fill="#307750" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                </svg>
+                Format Import
+            </a>
 
             <div class="mx-1">
+
                 <form id="uploadForm" action="{{ route('pegawai.import') }}" method="POST"
                     enctype="multipart/form-data" class="d-flex align-items-center">
                     @csrf
@@ -92,26 +113,23 @@
                                     class="text-center text-sm font-weight-bold">{{ $pegawai->firstItem() + $index }}</span>
                             </td>
                             <td class="align-middle text-center text-sm">
-                                <span
-                                    class="text-center text-sm font-weight-bold">{{ $pgw->nip }}</span>
+                                <span class="text-center text-sm font-weight-bold">{{ $pgw->nip }}</span>
                             </td>
                             <td class="align-middle text-center text-sm">
                                 <div class="d-flex flex-column justify-content-center">
-                                    <span
-                                        class=" text-center text-sm font-weight-bold">{{ $pgw->user->name }}</span>
+                                    <span class=" text-center text-sm font-weight-bold">{{ $pgw->user->name }}</span>
                                     <p class="text-center text-sm text-secondary mb-0">{{ $pgw->user->email }}</p>
                                 </div>
                             </td>
                             <td class="align-middle text-center text-sm">
-                                <span
-                                    class="text-center text-sm font-weight-bold">{{ $pgw->no_telp }}</span>
+                                <span class="text-center text-sm font-weight-bold">{{ $pgw->no_telp }}</span>
                             </td>
                             {{-- <td class="align-middle text-center">
                                 <span class="text-secondary text-xs font-weight-bold">{{ $pgw->no_wa }}</span>
                             </td> --}}
                             <td class="align-middle text-center">
                                 <span
-                                    class="text-center text-sm font-weight-bold">{{ ucwords(strtolower($pgw->ptk))}}</span>
+                                    class="text-center text-sm font-weight-bold">{{ ucwords(strtolower($pgw->ptk)) }}</span>
                             </td>
                             <td class="align-middle">
                                 <button class="text-center text-secondary font-weight-bold text-xs btn-edit ms-4"
@@ -182,8 +200,8 @@
                         </div>
                         <div class="mb-3 col-md-6">
                             <label for="nip" class="form-label">NIP</label>
-                            <input class="form-control" type="text" id="nip" name="nip"
-                                value="Doe" readonly/>
+                            <input class="form-control" type="text" id="nip" name="nip" value="Doe"
+                                readonly />
                         </div>
                         <div class="mb-3 col-md-6">
                             <label for="newEmail" class="form-label">E-mail</label>
@@ -215,8 +233,10 @@
                         </div>
                     </div>
                     <div class="mt-2">
-                        <button type="submit" class="btn btn-primary me-2" style="width: 180px">Simpan Perubahan</button>
-                        <button type="reset" class="btn btn-outline-secondary" style="width: 100px">Kembali</button>
+                        <button type="submit" class="btn btn-primary me-2" style="width: 180px">Simpan
+                            Perubahan</button>
+                        <button type="reset" class="btn btn-outline-secondary"
+                            style="width: 100px">Kembali</button>
                     </div>
                 </form>
 
@@ -324,45 +344,39 @@
 
 <script>
     $(document).ready(function() {
-        // Initialize DataTable
+        // Initialize DataTable tanpa menggunakan search dari DataTables
         var table = $('#pegawaiTable').DataTable({
             "paging": false,
-            "searching": true, // Disable DataTables' default search
+            "searching": false, // Nonaktifkan pencarian default DataTables
             "ordering": true,
             "info": false
         });
 
-        // Custom search input functionality
-        $('#myInput').on('keyup', function() {
-            table.search(this.value).draw(); // Use DataTables' search API
-        });
+        // function updateUrlAndReload(paramName, paramValue) {
+        //     var url = new URL(window.location.href);
+        //     if (paramValue) {
+        //         url.searchParams.set(paramName, paramValue);
+        //     } else {
+        //         url.searchParams.delete(paramName);
+        //     }
+        //     window.location.href = url.toString();
+        // }
 
-        $('#pegawaiTable_filter').hide();
+        // // Custom search input functionality
+        // $('#myInput').on('keyup', function() {
+        //     var searchValue = $(this).val();
+        //     updateUrlAndReload('search', searchValue);
+        // });
+
+        // // PTK filter functionality
+        // $('#filterPtk').on('change', function() {
+        //     var ptkValue = $(this).val();
+        //     updateUrlAndReload('ptk', ptkValue);
+        // });
+
+        // $('#pegawaiTable_filter').hide();
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.querySelector('#laporanTable');
-        const headers = table.querySelectorAll('th');
-        const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-        headers.forEach((header, index) => {
-            header.addEventListener('click', () => {
-                const isAscending = header.classList.contains('sorted-asc');
-                const newRows = rows.sort((rowA, rowB) => {
-                    const cellA = rowA.children[index].innerText.trim();
-                    const cellB = rowB.children[index].innerText.trim();
-                    return isAscending ? cellB.localeCompare(cellA) : cellA
-                        .localeCompare(cellB);
-                });
-
-                table.querySelector('tbody').append(...newRows);
-
-                headers.forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
-                header.classList.toggle('sorted-asc', !isAscending);
-                header.classList.toggle('sorted-desc', isAscending);
-            });
-        });
-    });
 
     function showUpdateForm(nip, name, email, phone, ptk) {
         // Isi input dengan nilai yang diberikan

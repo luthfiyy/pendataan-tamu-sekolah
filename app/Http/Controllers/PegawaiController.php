@@ -12,6 +12,7 @@ use App\Exports\PegawaiExport;
 use App\Imports\PegawaiImport;
 use App\Models\KedatanganTamu;
 use App\Mail\StatusUpdatedMail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\PegawaiExportTamu;
 use Illuminate\Support\Facades\DB;
 use App\Exports\PegawaiExportKurir;
@@ -22,6 +23,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Pagination\Paginator; // Add this line
 
 // use App\Imports\PegawaiImport;
@@ -85,7 +88,6 @@ class PegawaiController extends Controller
         }
     }
 
-
     public function update(Request $request)
     {
         // dd($request->all());
@@ -138,8 +140,6 @@ class PegawaiController extends Controller
             return redirect()->back()->with('error', 'Pegawai tidak ditemukan');
         }
     }
-
-
     public function export()
     {
         Carbon::setLocale('id');
@@ -165,182 +165,493 @@ class PegawaiController extends Controller
         }
     }
 
-    public function index()
-    {
+    // // public function index(Request $request)
+    // // {
 
+    // //     Carbon::setLocale('id');
+
+    // //     // Data statistik
+    // //     $currentMonth = Carbon::now()->month;
+    // //     $currentDay = Carbon::today()->day;
+
+    // //     $totalTamuBulanIni = KedatanganTamu::where('id_user', $id_user)->whereMonth('waktu_kedatangan', $currentMonth)->count();
+    // //     $totalKurirBulanIni = KedatanganEkspedisi::where('id_user', $id_user)->whereMonth('tanggal_waktu', $currentMonth)->count();
+    // //     $totalTamuHariIni = KedatanganTamu::where('id_user', $id_user)->whereDay('waktu_kedatangan', $currentDay)->count();
+    // //     $totalKurirHariIni = KedatanganEkspedisi::where('id_user', $id_user)->whereDay('tanggal_waktu', $currentDay)->count();
+    // //     // Get date range from request, default to current week if not provided
+    // //     $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : Carbon::now()->startOfWeek();
+    // //     $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : Carbon::now()->endOfWeek();
+
+    // //     // Ensure endDate is not before startDate
+    // //     if ($endDate->lt($startDate)) {
+    // //         $endDate = $startDate->copy()->addDays(6);
+    // //     }
+
+    // //     // Data terbaru
+    // //     $tamuTerbaru = KedatanganTamu::where('id_user', $id_user)->orderBy('created_at', 'desc')->limit(3)->get();
+    // //     $kurirTerbaru = KedatanganEkspedisi::where('id_user', $id_user)->orderBy('created_at', 'desc')->limit(3)->get();
+
+    // //     // Data statistik
+    // //     $totalTamuPeriode = KedatanganTamu::whereBetween('waktu_kedatangan', [$startDate, $endDate])->count();
+    // //     $totalKurirPeriode = KedatanganEkspedisi::whereBetween('tanggal_waktu', [$startDate, $endDate])->count();
+
+    // //     // Data terbaru
+    // //     $tamuTerbaru = KedatanganTamu::orderBy('created_at', 'desc')->limit(3)->get();
+    // //     $kurirTerbaru = KedatanganEkspedisi::orderBy('created_at', 'desc')->with('ekspedisi')->limit(3)->get();
+
+    // //     // Data untuk diagram
+    // //     $dataTamu = $this->getChartData(KedatanganTamu::class, 'waktu_kedatangan', $startDate, $endDate);
+    // //     $dataKurir = $this->getChartData(KedatanganEkspedisi::class, 'tanggal_waktu', $startDate, $endDate);
+
+    // //     // Format data untuk diagram
+    // //     $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+    // //     // Inisialisasi array data dengan nilai 0 untuk setiap hari kerja
+    // //     $dataTamuFormatted = array_fill(0, 5, 0);
+    // //     $dataKurirFormatted = array_fill(0, 5, 0);
+
+    // //     // Mengisi data yang tersedia ke dalam array yang sudah diinisialisasi
+    // //     foreach ($dataTamu as $day => $total) {
+    // //         $dataTamuFormatted[$day - 2] = $total; // -2 karena Senin adalah 2 dalam DAYOFWEEK
+    // //     }
+
+    // //     foreach ($dataKurir as $day => $total) {
+    // //         $dataKurirFormatted[$day - 2] = $total; // -2 karena Senin adalah 2 dalam DAYOFWEEK
+    // //     }
+
+    // //     return view('pegawai.dashboard', [
+    // //         'totalTamuBulanIni' => $totalTamuBulanIni,
+    // //         'totalKurirBulanIni' => $totalKurirBulanIni,
+    // //         'totalTamuPeriode' => $totalTamuPeriode,
+    // //         'totalKurirPeriode' => $totalKurirPeriode,
+    // //         'totalTamuHariIni' => $totalTamuHariIni,
+    // //         'totalKurirHariIni' => $totalKurirHariIni,
+    // //         'tamuTerbaru' => $tamuTerbaru,
+    // //         'kurirTerbaru' => $kurirTerbaru,
+    // //         'daysOfWeek' => $daysOfWeek,
+    // //         'dataTamu' => $dataTamuFormatted,
+    // //         'dataKurir' => $dataKurirFormatted,
+    // //         'startDate' => $startDate->format('Y-m-d'),
+    // //         'endDate' => $endDate->format('Y-m-d'),
+    // //     ]);
+    // // }
+
+    // public function index(Request $request)
+    // {
+    //     Carbon::setLocale('id');
+    //     $id_user = auth()->user()->id;
+
+    //     $currentMonth = Carbon::now()->month;
+    //     $currentDay = Carbon::today()->day;
+
+    //     $totalTamuBulanIni = KedatanganTamu::whereMonth('waktu_kedatangan', $currentMonth)->count();
+    //     $totalKurirBulanIni = KedatanganEkspedisi::whereMonth('tanggal_waktu', $currentMonth)->count();
+    //     $totalTamuHariIni = KedatanganTamu::where('id_user', $id_user)->whereDay('waktu_kedatangan', $currentDay)->count();
+    //     $totalKurirHariIni = KedatanganEkspedisi::where('id_user', $id_user)->whereDay('tanggal_waktu', $currentDay)->count();
+
+    //     $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : Carbon::now()->startOfWeek();
+    //     $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : Carbon::now()->endOfWeek();
+
+    //     if ($endDate->lt($startDate)) {
+    //         $endDate = $startDate->copy()->addDays(4); // Senin - Jumat saja
+    //     }
+
+    //     // Data statistik
+    //     $totalTamuPeriode = KedatanganTamu::whereBetween('waktu_kedatangan', [$startDate, $endDate])->count();
+    //     $totalKurirPeriode = KedatanganEkspedisi::whereBetween('tanggal_waktu', [$startDate, $endDate])->count();
+    //     $totalEmployees = Pegawai::where('ptk', '!=', 'tendik')->count();
+    //     $totalTendik = Pegawai::where('PTK', 'tendik')->count();
+
+    //     // Data terbaru
+    //     $tamuTerbaru = KedatanganTamu::where('id_user', $id_user)
+    //         ->orderBy('created_at', 'desc')->limit(3)->get();
+    //     $kurirTerbaru = KedatanganEkspedisi::where('id_user', $id_user)
+    //         ->orderBy('created_at', 'desc')->with('ekspedisi')->limit(3)->get();
+
+    //     // Data untuk diagram
+    //     $dataTamu = $this->getChartData(KedatanganTamu::class, 'waktu_kedatangan', $startDate, $endDate);
+    //     $dataKurir = $this->getChartData(KedatanganEkspedisi::class, 'tanggal_waktu', $startDate, $endDate);
+
+    //     return view('pegawai.dashboard', [
+    //         'totalTamuHariIni' => $totalTamuHariIni,
+    //         'totalKurirHariIni' => $totalKurirHariIni,
+    //         'totalTamuPeriode' => $totalTamuPeriode,
+    //         'totalKurirPeriode' => $totalKurirPeriode,
+    //         'totalTamuBulanIni' => $totalTamuBulanIni,
+    //         'totalKurirBulanIni' => $totalKurirBulanIni,
+    //         'tamuTerbaru' => $tamuTerbaru,
+    //         'kurirTerbaru' => $kurirTerbaru,
+    //         'dataTamu' => $dataTamu,
+    //         'dataKurir' => $dataKurir,
+    //         'startDate' => $startDate->format('Y-m-d'),
+    //         'endDate' => $endDate->format('Y-m-d'),
+    //     ]);
+    // }
+
+    public function index(Request $request)
+    {
         Carbon::setLocale('id');
 
-        $id_user = auth()->user()->id;
-        // Data statistik
-        $currentMonth = Carbon::now()->month;
-        $currentDay = Carbon::today()->day;
+        // Ambil data user yang sedang login
+        $user = Auth::user();
 
-        $totalTamuBulanIni = KedatanganTamu::where('id_user', $id_user)->whereMonth('waktu_kedatangan', $currentMonth)->count();
-        $totalKurirBulanIni = KedatanganEkspedisi::where('id_user', $id_user)->whereMonth('tanggal_waktu', $currentMonth)->count();
-        $totalTamuHariIni = KedatanganTamu::where('id_user', $id_user)->whereDay('waktu_kedatangan', $currentDay)->count();
-        $totalKurirHariIni = KedatanganEkspedisi::where('id_user', $id_user)->whereDay('tanggal_waktu', $currentDay)->count();
+        $currentDate = Carbon::now();
+        $defaultMonthYear = $currentDate->format('Y-m');
+        $selectedMonthYear = $request->input('month', $defaultMonthYear);
 
-        // Data terbaru
-        $tamuTerbaru = KedatanganTamu::where('id_user', $id_user)->orderBy('created_at', 'desc')->limit(3)->get();
-        $kurirTerbaru = KedatanganEkspedisi::where('id_user', $id_user)->orderBy('created_at', 'desc')->limit(3)->get();
+        // Parse the selected month-year
+        $date = Carbon::createFromFormat('Y-m', $selectedMonthYear);
+        $selectedMonth = $date->month;
+        $selectedYear = $date->year;
 
-        // Data untuk diagram mingguan
-        $startOfWeek = Carbon::now()->startOfWeek()->format('Y-m-d');
-        $endOfWeek = Carbon::now()->endOfWeek()->format('Y-m-d');
+        $startDate = $date->copy()->startOfMonth();
+        $endDate = $date->copy()->endOfMonth();
 
-        $dataTamu = DB::table('kedatangan_tamu')
-            ->select(DB::raw('DAYOFWEEK(waktu_perjanjian) as day_of_week'), DB::raw('count(*) as total'))
-            ->where('id_user', $id_user)
-            ->whereBetween('waktu_perjanjian', [$startOfWeek, $endOfWeek])
-            ->whereRaw('DAYOFWEEK(waktu_perjanjian) BETWEEN 2 AND 6') // Hanya Senin hingga Jumat
-            ->groupBy('day_of_week')
-            ->orderBy('day_of_week')
-            ->pluck('total', 'day_of_week')
-            ->toArray();
+        // Total tamu bulan ini - tambahkan filter user
+        $totalTamuBulanIni = KedatanganTamu::whereMonth('waktu_kedatangan', $selectedMonth)
+            ->where('id_user', $user->id) // Tambah filter user
+            ->whereYear('waktu_kedatangan', $selectedYear) // Tambah filter tahun untuk memastikan bulan yang tepat
+            ->count();
 
-        $dataKurir = DB::table('kedatangan_ekspedisi')
-            ->select(DB::raw('DAYOFWEEK(tanggal_waktu) as day_of_week'), DB::raw('count(*) as total'))
-            ->where('id_user', $id_user)
-            ->whereBetween('tanggal_waktu', [$startOfWeek, $endOfWeek])
-            ->whereRaw('DAYOFWEEK(tanggal_waktu) BETWEEN 2 AND 6') // Hanya Senin hingga Jumat
-            ->groupBy('day_of_week')
-            ->orderBy('day_of_week')
-            ->pluck('total', 'day_of_week')
-            ->toArray();
+        // Total kurir bulan ini - tambahkan filter user
+        $totalKurirBulanIni = KedatanganEkspedisi::whereMonth('tanggal_waktu', $selectedMonth)
+            ->where('id_user', $user->id) // Tambah filter user
+            ->whereYear('tanggal_waktu', $selectedYear) // Tambah filter tahun untuk memastikan bulan yang tepat
+            ->count();
 
-        // Format data untuk diagram
-        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        // Total tamu hari ini sudah ada filter user - tidak perlu diubah
+        $totalTamuHariIni = KedatanganTamu::where('id_user', $user->id)
+            ->whereDay('waktu_kedatangan', $currentDate)
+            ->count();
 
-        // Inisialisasi array data dengan nilai 0 untuk setiap hari kerja
-        $dataTamuFormatted = array_fill(0, 5, 0);
-        $dataKurirFormatted = array_fill(0, 5, 0);
+        // Total kurir hari ini sudah ada filter user - tidak perlu diubah
+        $totalKurirHariIni = KedatanganEkspedisi::where('id_user', $user->id)
+            ->whereDay('tanggal_waktu', $currentDate)
+            ->count();
 
-        // Mengisi data yang tersedia ke dalam array yang sudah diinisialisasi
-        foreach ($dataTamu as $day => $total) {
-            $dataTamuFormatted[$day - 2] = $total; // -2 karena Senin adalah 2 dalam DAYOFWEEK
-        }
+        $tamuAkanDatang = KedatanganTamu::whereDate('waktu_perjanjian', $currentDate->toDateString())
+            ->where('id_user', $user->id)
+            ->where('status', 'Diterima')
+            ->whereNull('waktu_kedatangan') // Tambahkan kondisi ini
+            // ->orderBy('waktu_perjanjian')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5, ['*'], 'tamu_datang_page');
 
-        foreach ($dataKurir as $day => $total) {
-            $dataKurirFormatted[$day - 2] = $total; // -2 karena Senin adalah 2 dalam DAYOFWEEK
+        // Tamu yang sudah datang (waktu_kedatangan tidak NULL)
+        $tamuSudahDatang = KedatanganTamu::with(['tamu', 'pegawai.user'])
+            ->whereDate('waktu_kedatangan', $currentDate->toDateString())
+            ->where('status', 'Diterima')
+            ->where('id_user', $user->id)
+            ->whereNotNull('waktu_kedatangan') // Tambahkan kondisi ini
+            // ->orderBy('waktu_kedatangan', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5, ['*'], 'tamu_sudah_datang_page');
+
+        $tamuMenungguKonfirmasi = KedatanganTamu::with(['tamu', 'user'])
+            ->whereDate('waktu_perjanjian', '>', $currentDate)
+            ->where('id_user', $user->id)
+            ->where('status', 'Menunggu konfirmasi')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5, ['*'], 'tamu_pending_page');
+
+        $tamuDitolak = KedatanganTamu::whereDate('waktu_perjanjian', $currentDate->toDateString())
+            ->where('status', 'Ditolak')
+            ->where('id_user', $user->id)
+            // ->orderBy('waktu_perjanjian')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5, ['*'], 'tamu_ditolak_page');
+
+        $kurirHariIni = KedatanganEkspedisi::whereDate('tanggal_waktu', $currentDate->toDateString())
+            ->where('id_user', $user->id)
+            ->orderBy('tanggal_waktu', 'desc')
+            ->with('ekspedisi')
+            ->paginate(5, ['*'], 'kurir_page');
+
+
+        $dataTamu = $this->getChartData(KedatanganTamu::class, 'waktu_kedatangan', $startDate, $endDate, $user);
+        $dataKurir = $this->getChartData(KedatanganEkspedisi::class, 'tanggal_waktu', $startDate, $endDate, $user);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'dataTamu' => $dataTamu,
+                'dataKurir' => $dataKurir,
+                'totalTamuPeriode' => array_sum($dataTamu),
+                'totalKurirPeriode' => array_sum($dataKurir),
+            ]);
         }
 
         return view('pegawai.dashboard', [
-            'totalTamuBulanIni' => $totalTamuBulanIni,
-            'totalKurirBulanIni' => $totalKurirBulanIni,
             'totalTamuHariIni' => $totalTamuHariIni,
             'totalKurirHariIni' => $totalKurirHariIni,
-            'tamuTerbaru' => $tamuTerbaru,
-            'kurirTerbaru' => $kurirTerbaru,
-            'daysOfWeek' => $daysOfWeek,
-            'dataTamu' => $dataTamuFormatted,
-            'dataKurir' => $dataKurirFormatted,
+            'totalTamuBulanIni' => $totalTamuBulanIni,
+            'totalKurirBulanIni' => $totalKurirBulanIni,
+            'tamuAkanDatang' => $tamuAkanDatang,
+            'tamuSudahDatang' => $tamuSudahDatang,
+            'tamuMenungguKonfirmasi' => $tamuMenungguKonfirmasi,
+            'tamuDitolak' => $tamuDitolak,
+            'kurirHariIni' => $kurirHariIni,
+            'dataTamu' => $dataTamu,
+            'dataKurir' => $dataKurir,
+            'selectedMonthYear' => $selectedMonthYear,
         ]);
     }
+    private function getChartData($model, $dateField, $startDate, $endDate, $user)
+    {
+        $data = $model::selectRaw("DATE($dateField) as date, COUNT(*) as total")
+            ->whereBetween($dateField, [$startDate, $endDate])
+            ->where('id_user', $user->id)
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->pluck('total', 'date')
+            ->toArray();
 
-    public function laporan_tamu()
+        $allDates = collect($startDate->daysUntil($endDate))->map(function ($date) {
+            return $date->format('Y-m-d');
+        });
+
+        return $allDates->mapWithKeys(function ($date) use ($data) {
+            return [$date => $data[$date] ?? 0];
+        })->toArray();
+    }
+    public function laporan_tamu(Request $request)
     {
         Carbon::setLocale('id');
         $id_user = auth()->user()->id;
-        $tamus = KedatanganTamu::where('id_user', $id_user)->with('tamu', 'pegawai')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10); // Pastikan ini adalah metode paginasi
+
+        $query = KedatanganTamu::where('id_user', $id_user)->with('tamu', 'pegawai')
+            ->orderBy('created_at', 'desc');
+
+        $search = $request->input('search');
+        $searchBy = $request->input('search_by');
+        $status = $request->input('status');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Apply search logic
+        if ($search && trim($search) !== '') {
+            if ($searchBy) {
+                // Specific column search
+                switch ($searchBy) {
+                    case 'nama_tamu':
+                        $query->whereHas('tamu', function ($q) use ($search) {
+                            $q->where('nama', 'like', "%{$search}%");
+                        });
+                        break;
+                    case 'email_tamu':
+                        $query->whereHas('tamu', function ($q) use ($search) {
+                            $q->where('email', 'like', "%{$search}%");
+                        });
+                        break;
+                    case 'nama_pegawai':
+                        $query->whereHas('user', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        });
+                        break;
+                    case 'instansi':
+                        $query->where('instansi', 'like', "%{$search}%");
+                        break;
+                    case 'tujuan':
+                        $query->where('tujuan', 'like', "%{$search}%");
+                        break;
+                }
+            } else {
+                // Global search (search in all relevant columns)
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('tamu', function ($q) use ($search) {
+                        $q->where('nama', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                        ->orWhereHas('user', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhere('instansi', 'like', "%{$search}%")
+                        ->orWhere('tujuan', 'like', "%{$search}%");
+                });
+            }
+        }
+
+        // Filter by status if provided
+        if ($status && trim($status) !== '') {
+            $query->where('status', $status);
+        }
+
+        // Filter by date range if both dates are provided
+        if ($startDate && $endDate) {
+            $query->whereBetween('waktu_perjanjian', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $tamus = $query->paginate(10)->appends($request->query());
         return view("pegawai.laporan-tamu", compact('tamus'));
     }
 
-
-    public function laporan_kurir()
+    public function laporan_kurir(Request $request)
     {
-        Carbon::setLocale('id');
-        $id_user = auth()->user()->id;
-        $ekspedisi = KedatanganEkspedisi::where('id_user', $id_user)->with('ekspedisi', 'pegawai')
+        Carbon::setLocale('id'); // Atur lokal untuk Carbon (Bahasa Indonesia)
+        $id_user = auth()->user()->id; // Mendapatkan ID pengguna yang sedang login
+        $search = $request->input('search'); // Mendapatkan input pencarian
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Modify the query to include search and date filter functionality
+        $ekspedisi = KedatanganEkspedisi::where('id_user', $id_user)
+            ->with('ekspedisi', 'pegawai')
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('ekspedisi', function ($query) use ($search) {
+                    $query->where('nama_kurir', 'like', "%{$search}%")
+                        ->orWhere('no_telp', 'like', "%{$search}%")
+                        ->orWhere('ekspedisi', 'like', "%{$search}%");
+                });
+            })
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->whereDate('tanggal_waktu', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->whereDate('tanggal_waktu', '<=', $endDate);
+            })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
-        return view("pegawai.laporan-kurir", compact('ekspedisi'));
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view("pegawai.laporan-kurir", compact('ekspedisi')); // Kirim data ke view
     }
 
     public function manajemen_kunjungan(Request $request)
     {
-        $id_user = auth()->user()->id;
-
+        $today = Carbon::today();
         Carbon::setLocale('id');
-        $today = Carbon::now(); // Menggunakan waktu saat ini
+        $now = Carbon::now(); // Mendapatkan waktu sekarang (tanggal + jam)
 
-        $status = $request->input('status', 'Menunggu konfirmasi');
-        $selectedTamuId = $request->input('selected_tamu');
+        // Mengambil status filter dari request
+        $filterStatus = $request->input('filterStatus', 'Belum Datang');
 
-        // Membuat query untuk menampilkan tamu yang belum dikonfirmasi dan waktu perjanjiannya belum lewat
-        $query = KedatanganTamu::where('id_user', $id_user)
+        // ID pengguna yang sedang login
+        $userId = auth()->user()->id;
+
+        // $kedatanganTamuDiterima = KedatanganTamu::with('user', 'tamu')
+        //     ->where('status', 'Diterima')
+        //     ->where('id_user', $userId)
+        //     ->when($filterStatus === 'Belum Datang', function ($query) {
+        //         return $query->whereNull('waktu_kedatangan');
+        //     })
+        //     ->when($filterStatus === 'Sudah Datang', function ($query) {
+        //         return $query->whereNotNull('waktu_kedatangan');
+        //     })
+        //     ->orderBy('waktu_perjanjian', 'asc')
+        //     ->paginate(5, ['*'], 'page_diterima');
+
+        $kedatanganTamuDiterima = KedatanganTamu::with('user', 'tamu')
+            ->where('status', 'Diterima')
+            ->where('id_user', $userId)
+            ->when($filterStatus === 'Belum Datang', function ($query) use ($now) {
+                // Belum Datang: waktu_kedatangan null dan waktu_perjanjian belum lewat
+                return $query->whereNull('waktu_kedatangan')
+                    ->where('waktu_perjanjian', '>', $now);
+            })
+            ->when($filterStatus === 'Sudah Datang', function ($query) {
+                // Sudah Datang: waktu_kedatangan tidak null
+                return $query->whereNotNull('waktu_kedatangan');
+            })
+            ->when($filterStatus === 'Tidak Datang', function ($query) use ($now) {
+                // Tidak Datang: waktu_kedatangan null dan waktu_perjanjian lebih dari 30 menit yang lalu
+                return $query->whereNull('waktu_kedatangan')
+                    ->where('waktu_perjanjian', '<', $now->subMinutes(30));
+            })
+            ->orderBy('waktu_perjanjian', 'asc')
+            ->paginate(5, ['*'], 'page_diterima');
+
+        $search = $request->input('search');
+
+        // Tamu dengan status "Menunggu konfirmasi" dan waktu perjanjian di masa depan
+        $kedatanganTamuMenunggu = KedatanganTamu::with('user', 'tamu')
             ->where('status', 'Menunggu konfirmasi')
-            ->where('waktu_perjanjian', '>=', $today); // Hanya tampilkan tamu dengan waktu perjanjian yang belum lewat
+            ->where('waktu_perjanjian', '>', $now)
+            ->where('id_user', $userId) // Menambahkan filter berdasarkan pengguna yang login
+            ->when($search, function ($query) use ($search) {
+                // Jika ada input pencarian
+                $query->whereHas('tamu', function ($query) use ($search) {
+                    // Pencarian berdasarkan nama atau email tamu
+                    $query->where('nama', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })
+                    ->orWhere('waktu_perjanjian', 'like', "%{$search}%") // Pencarian berdasarkan waktu perjanjian
+                    ->orWhere('waktu_kedatangan', 'like', "%{$search}%"); // Pencarian berdasarkan waktu kedatangan
+            })
+            ->orderBy('waktu_perjanjian', 'asc')
+            ->paginate(3, ['*'], 'page_menunggu')
+            ->withQueryString();
 
-        $kedatanganTamu = $query->paginate(5)->withQueryString();
+        $totalTamuHariIni = KedatanganTamu::whereDate('waktu_kedatangan', $today)
+            ->where('id_user', $userId) // Menambahkan filter berdasarkan pengguna yang login
+            ->count();
+        $totalTamuDiterima = KedatanganTamu::where('status', 'Diterima')
+            ->where('id_user', $userId) // Menambahkan filter berdasarkan pengguna yang login
+            ->count();
+        $totalTamuDitolak = KedatanganTamu::where('status', 'Ditolak')
+            ->where('id_user', $userId) // Menambahkan filter berdasarkan pengguna yang login
+            ->count();
+        $totalTamuDiproses = KedatanganTamu::where('status', 'Menunggu konfirmasi')
+            ->where('id_user', $userId) // Menambahkan filter berdasarkan pengguna yang login
+            ->count();
 
-        $selectedTamu = null;
-        if ($selectedTamuId) {
-            $selectedTamu = KedatanganTamu::find($selectedTamuId);
-        }
-
-        $totalTamuHariIni = KedatanganTamu::where('id_user', $id_user)->whereDate('waktu_kedatangan', $today)->count();
-        $totalTamuDiterima = KedatanganTamu::where('id_user', $id_user)->where('status', 'Diterima')->count();
-        $totalTamuDitolak = KedatanganTamu::where('id_user', $id_user)->where('status', 'Ditolak')->count();
-        $totalTamuDiproses = KedatanganTamu::where('id_user', $id_user)->where('status', 'Menunggu konfirmasi')->count();
-
-        $tamus = KedatanganTamu::where('id_user', $id_user)->with(['tamu', 'user']);
-
-        if ($request->has('selected_tamu')) {
-            $selectedTamuData = KedatanganTamu::where('id_user', $id_user)->with(['tamu', 'user'])->find($request->selected_tamu);
-            if ($selectedTamuData) {
-                $selectedTamu = [
-                    'id_kedatanganTamu' => $selectedTamuData->id_kedatanganTamu,
-                    'nama_tamu' => $selectedTamuData->tamu->nama,
-                    'email' => $selectedTamuData->tamu->email,
-                    'nama_user' => $selectedTamuData->user->name,
-                    'alamat_tamu' => $selectedTamuData->tamu->alamat,
-                    'no_telp_tamu' => $selectedTamuData->tamu->no_telp,
-                    'instansi' => $selectedTamuData->instansi,
-                    'foto' => $selectedTamuData->foto,
-                    'tujuan' => $selectedTamuData->tujuan,
-                    'status' => $selectedTamuData->status,
-                    'waktu_perjanjian' => $selectedTamuData->waktu_perjanjian
-                ];
-            }
-        }
-
-        return view('pegawai.manajemen-kunjungan', compact('totalTamuHariIni', 'totalTamuDiterima', 'totalTamuDitolak', 'totalTamuDiproses', 'kedatanganTamu', 'selectedTamu', 'tamus', 'status'));
+        return view('pegawai.manajemen-kunjungan', compact(
+            'totalTamuHariIni',
+            'totalTamuDiterima',
+            'totalTamuDitolak',
+            'totalTamuDiproses',
+            'kedatanganTamuDiterima',
+            'kedatanganTamuMenunggu',
+            'filterStatus'
+        ));
     }
-
-
     public function update_status(Request $request, $id_tamu)
     {
+        $kedatanganTamu = KedatanganTamu::findOrFail($id_tamu);
+        $kedatanganTamu->status = $request->status;
 
-        $kedatanganTamu = KedatanganTamu::find($id_tamu);
-        if ($kedatanganTamu) {
-            $kedatanganTamu->update(['status' => $request->status]);
-            return redirect()->route('pegawai.manajemen-kunjungan')->with('status', 'Status tamu berhasil diupdate!');
-
-            // Simpan QR code ke dalam file
-            $qrCodePath = 'qrcodes/' . $kedatanganTamu->id_tamu . '.png';
-            Storage::disk('public')->put($qrCodePath, base64_decode($kedatanganTamu->qr_code));
-            $fullQrCodePath = public_path('storage/' . $qrCodePath); // Path lengkap ke QR code
-
-            // Ambil email tamu
-            $tamu = Tamu::findOrFail($kedatanganTamu->id_tamu);
-            $email = $tamu->email;
-
-            // Kirim email
-            Mail::to($email)->send(new StatusUpdatedMail($kedatanganTamu, $fullQrCodePath));
+        // If status is "Ditolak", save the rejection reason
+        if ($request->status === 'Ditolak') {
+            $request->validate([
+                'keterangan' => 'required|string|max:255',
+            ]);
+            $kedatanganTamu->keterangan = $request->keterangan;
+        } else {
+            $kedatanganTamu->keterangan = null; // Clear keterangan if status is not "Ditolak"
         }
 
-        return view('pegawai.manajemen-kunjungan')->with('error', 'Tamu tidak ditemukan!');
-    }
+        $kedatanganTamu->save();
 
+        // Simpan QR code ke dalam file
+        $qrCodePath = 'qrcodes/' . $kedatanganTamu->id_tamu . '.png';
+        \Storage::disk('public')->put($qrCodePath, base64_decode($kedatanganTamu->qr_code));
+        $fullQrCodePath = public_path('storage/' . $qrCodePath); // Path lengkap ke QR code
+
+        // Ambil email tamu
+        $tamu = Tamu::findOrFail($kedatanganTamu->id_tamu);
+        $email = $tamu->email;
+
+        // Cek apakah email terdaftar
+        if ($tamu->email) {
+            // Kirim email jika email terdaftar
+            Mail::to($email)->send(new StatusUpdatedMail($kedatanganTamu, $fullQrCodePath));
+        } else {
+            // Email tidak terdaftar, tampilkan pesan error
+            return redirect()->back()->with('error', 'Email tidak terdaftar untuk tamu ini');
+        }
+
+        $message = $request->status === 'Ditolak' ? 'Status diperbarui dan alasan penolakan berhasil disimpan' : 'Status berhasil diperbarui';
+        return redirect()->back()->with('success', $message);
+    }
     public function user_profile()
     {
         $user = Auth::user();
         $pegawai = $user->pegawai->first(); // Fetch the first Pegawai record
         return view('pegawai.user-profile', compact('user', 'pegawai'));
     }
-
     public function updateProfile(Request $request)
     {
         $request->validate([
@@ -388,16 +699,209 @@ class PegawaiController extends Controller
         return Excel::download(new PegawaiExportTamu($userId), $fileName);
     }
 
-    public function exportKurir()
+    public function generatePDFKurir(Request $request)
     {
-        Carbon::setLocale('id');
-
+        // Check if user is authenticated
         $user = auth()->user();
-        $userId = $user->id;
-        $userName = $user->name;
-        $currentDate = Carbon::now()->translatedFormat('l, d-m-Y');
-        $fileName = "Laporan-Ekspedisi {$userName} - {$currentDate}.xlsx";
+        if (!$user) {
+            throw new AuthorizationException('User not authenticated');
+        }
 
-        return Excel::download(new PegawaiExportKurir($userId), $fileName);
+        Log::info('Generating PDF for user: ' . $user->id);
+
+        try {
+            $request->validate([
+                'reportType' => 'required|in:summary,detail',
+                'type' => 'required|in:month,date_range,year',
+                'value' => 'required_if:type,month,year',
+                'start' => 'required_if:type,date_range|date',
+                'end' => 'required_if:type,date_range|date|after_or_equal:start',
+            ]);
+
+            // Ensure query is always scoped to the authenticated user
+            $query = KedatanganEkspedisi::where('id_user', $user->id);
+            $periode = '';
+
+            switch ($request->type) {
+                case 'month':
+                    $date = Carbon::createFromFormat('Y-m', $request->value);
+                    $query->whereYear('tanggal_waktu', $date->year)
+                        ->whereMonth('tanggal_waktu', $date->month);
+                    $title = 'Rekap Kurir Bulan ' . $date->format('F Y');
+                    $periode = $date->translatedFormat('F Y');
+                    break;
+                case 'date_range':
+                    $startDate = Carbon::parse($request->start)->startOfDay();
+                    $endDate = Carbon::parse($request->end)->endOfDay();
+                    $query->whereBetween('tanggal_waktu', [$startDate, $endDate]);
+                    // Format judul menggunakan d/m/Y sesuai requirement
+                    $title = 'Rekap Kurir ' . $startDate->format('d/m/Y') . ' - ' . $endDate->format('d/m/Y');
+
+                    // Format periode menggunakan translatedFormat untuk Bahasa Indonesia
+                    $periode = $startDate->translatedFormat('d F Y') . ' - ' .
+                        $endDate->translatedFormat('d F Y');
+                    break;
+                case 'year':
+                    $query->whereYear('tanggal_waktu', $request->value);
+                    $title = 'Rekap Kurir Tahun ' . $request->value;
+                    $periode = 'Tahun ' . $request->value;
+                    break;
+            }
+
+            if ($request->reportType === 'summary') {
+                // Additional security check for data access
+                $dailyCount = $query->get()
+                    ->groupBy(function ($item) {
+                        $date = $item->tanggal_waktu instanceof Carbon
+                            ? $item->tanggal_waktu
+                            : Carbon::parse($item->tanggal_waktu);
+                        return $date->format('Y-m-d');
+                    })
+                    ->map->count();
+
+                $totalKurir = $dailyCount->sum();
+
+                try {
+                    $pdf = Pdf::loadView('pdf.kurir_recap', compact('dailyCount', 'title', 'totalKurir', 'periode'));
+                } catch (\Exception $e) {
+                    Log::error('Error generating summary PDF for user ' . $user->id . ': ' . $e->getMessage());
+                    return response()->json(['error' => 'Failed to generate PDF'], 500);
+                }
+            } else {
+                // Additional security check for detailed data
+                $data = $query->with(['ekspedisi', 'user'])->get();
+
+                try {
+                    $pdf = Pdf::loadView('pdf.kurir_detail', compact('data', 'title', 'periode'));
+                } catch (\Exception $e) {
+                    Log::error('Error generating detailed PDF for user ' . $user->id . ': ' . $e->getMessage());
+                    return response()->json(['error' => 'Failed to generate PDF'], 500);
+                }
+            }
+
+            Log::info('PDF generated successfully for user: ' . $user->id);
+
+            $content = $pdf->output();
+            $filename = 'rekap_kurir_' . $user->id . '_' . date('Y-m-d_His') . '.pdf';
+
+            return response($content)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+                ->header('Content-Length', strlen($content));
+        } catch (ValidationException $e) {
+            Log::error('Validation error for user ' . $user->id . ': ' . $e->getMessage());
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Unexpected error for user ' . $user->id . ': ' . $e->getMessage());
+            return response()->json(['error' => 'An unexpected error occurred'], 500);
+        }
+    }
+
+    public function generatePDFTamu(Request $request)
+    {
+        // Check if user is authenticated
+        $user = auth()->user();
+        if (!$user) {
+            throw new AuthorizationException('User not authenticated');
+        }
+
+        Log::info('Generating PDF for user: ' . $user->id);
+
+        try {
+            $request->validate([
+                'type' => 'required|in:month,date_range,year',
+                'value' => 'required_if:type,month,year',
+                'start' => 'required_if:type,date_range|date',
+                'end' => 'required_if:type,date_range|date|after_or_equal:start',
+                'report_type' => 'required|in:summary,detail',
+                'status' => 'nullable|in:Menunggu konfirmasi,Diterima,Ditolak',
+            ]);
+
+            // Ensure query is always scoped to the authenticated user
+            $query = KedatanganTamu::where('id_user', $user->id);
+            $periode = '';
+            $title = '';
+
+            switch ($request->type) {
+                case 'month':
+                    $date = Carbon::createFromFormat('Y-m', $request->value);
+                    $query->whereYear('waktu_perjanjian', $date->year)
+                        ->whereMonth('waktu_perjanjian', $date->month);
+                    $title = 'Rekap Tamu Bulan ' . $date->translatedFormat('F Y');
+                    $periode = $date->translatedFormat('F Y');
+                    break;
+
+                case 'date_range':
+                    $startDate = Carbon::parse($request->start)->startOfDay();
+                    $endDate = Carbon::parse($request->end)->endOfDay();
+                    $query->whereBetween('waktu_perjanjian', [$startDate, $endDate]);
+                    $title = 'Rekap Tamu ' . $startDate->translatedFormat('d F Y') . ' - ' . $endDate->translatedFormat('d F Y');
+                    $periode = $startDate->translatedFormat('d F Y') . ' - ' . $endDate->translatedFormat('d F Y');
+                    break;
+
+                case 'year':
+                    $query->whereYear('waktu_perjanjian', $request->value);
+                    $title = 'Rekap Tamu Tahun ' . $request->value;
+                    $periode = 'Tahun ' . $request->value;
+                    break;
+            }
+
+            // Get status statistics if no specific status is selected
+            $statusStats = null;
+            if (empty($request->status)) {
+                $statusStats = [
+                    'Menunggu konfirmasi' => (clone $query)->where('status', 'Menunggu konfirmasi')->count(),
+                    'Diterima' => (clone $query)->where('status', 'Diterima')->count(),
+                    'Ditolak' => (clone $query)->where('status', 'Ditolak')->count()
+                ];
+            }
+
+            if ($request->status) {
+                $query->where('status', $request->status);
+                $title .= ' - Status: ' . $request->status;
+            }
+
+            if ($request->report_type === 'summary') {
+                $dailyCount = $query->get()
+                    ->groupBy(function ($item) {
+                        return $item->waktu_perjanjian ?
+                            Carbon::parse($item->waktu_perjanjian)->format('Y-m-d') : null;
+                    })
+                    ->map->count();
+
+                $totalTamu = $dailyCount->sum();
+                $pdf = PDF::loadView('pdf.tamu_recap', compact(
+                    'dailyCount',
+                    'title',
+                    'periode',
+                    'totalTamu',
+                    'statusStats'
+                ));
+            } else {
+                // Additional security check for detailed data
+                $guests = $query->with('tamu', 'user')->get();
+                $pdf = PDF::loadView('pdf.tamu_detail', compact(
+                    'guests',
+                    'title',
+                    'periode',
+                    'statusStats'
+                ));
+            }
+
+            Log::info('PDF generated successfully for user: ' . $user->id);
+
+            $content = $pdf->output();
+            $filename = 'rekap_tamu_' . $user->id . '_' . date('Y-m-d_His') . '.pdf';
+
+            return response($content)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        } catch (ValidationException $e) {
+            Log::error('Validation error for user ' . $user->id . ': ' . $e->getMessage());
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Error generating PDF for user ' . $user->id . ': ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate PDF: ' . $e->getMessage()], 500);
+        }
     }
 }

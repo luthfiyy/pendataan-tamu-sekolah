@@ -2274,8 +2274,8 @@ progress {
   .input-group .form-select.is-invalid:focus {
     z-index: 3; }
 
-.btn {
-  display: inline-block;
+/* .btn { */
+  /* display: inline-block;
   font-weight: 700;
   line-height: 1.667;
   color: #7b809a;
@@ -2291,7 +2291,7 @@ progress {
   padding: 0.625rem 1.5rem;
   font-size: 0.75rem;
   border-radius: 0.5rem;
-  transition: all 0.15s ease-in; }
+  transition: all 0.15s ease-in; } */
   @media (prefers-reduced-motion: reduce) {
     .btn {
       transition: none; } }
@@ -3990,12 +3990,12 @@ progress {
   .alert-success .alert-link {
     color: #255426; }
 
-.alert-info {
+/* .alert-info {
   color: #10458b;
   background-color: #d1e3fa;
   border-color: #bad5f8; }
   .alert-info .alert-link {
-    color: #0d376f; }
+    color: #0d376f; } */
 
 .alert-warning {
   color: #975400;
@@ -12297,8 +12297,8 @@ progress {
 /* .alert-success {
   background-image: linear-gradient(195deg, #66BB6A 0%, #43A047 100%); } */
 
-.alert-info {
-  background-image: linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%); }
+/* .alert-info {
+  background-image: linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%); } */
 
 .alert-warning {
   background-image: linear-gradient(195deg, #FFA726 0%, #FB8C00 100%); }
@@ -12415,15 +12415,15 @@ progress {
   text-transform: uppercase; }
 
 .btn {
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   letter-spacing: 0;
   /* text-transform: uppercase; */
   background-size: 150%;
   background-position-x: 25%;
   position: relative;
   overflow: hidden; }
-  .btn:not([class*="btn-outline-"]) {
-    border: 0; }
+  /* .btn:not([class*="btn-outline-"]) {
+    border: 0; } */
   .btn:active, .btn:active:focus, .btn:active:hover {
     box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.09), 0 2px 3px -1px rgba(0, 0, 0, 0.07);
     transform: none;
@@ -14344,8 +14344,8 @@ hr.horizontal {
   width: 50%;
   border-right: 1px solid #dee2e6; }
 
-.navbar {
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.16); }
+/* .navbar {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.16); } */
   .navbar .navbar-brand {
     color: #344767;
     font-size: 0.875rem; }
@@ -14392,8 +14392,8 @@ hr.horizontal {
     .navbar-light .navbar-toggler:focus {
       box-shadow: none; }
 
-.navbar-toggler .navbar-toggler-icon {
-  background-image: none; }
+/* .navbar-toggler .navbar-toggler-icon {
+  background-image: none; } */
   .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar {
     display: block;
     position: relative;

@@ -5322,12 +5322,7 @@ textarea.form-control-lg {
   height: 100vh;
   background-color: #435971;
 }
-.offcanvas-backdrop.fade {
-  opacity: 0;
-}
-.offcanvas-backdrop.show {
-  opacity: 0.5;
-}
+    
 
 .offcanvas-header {
   display: flex;

@@ -16,6 +16,9 @@ Route::get('/', function () {
     return view('user.landing-page');
 })->name('landing-page');
 
+Route::get('/tamu-detail', function () {
+    return view('pdf.kurir_recap');
+})->name('tamu-detail');
 
 // Route::get('/dashboard', function () {
 //     return view('pegawai.dashboard');
@@ -46,6 +49,7 @@ Route::middleware(['auth', 'checkRole:admin'])->group(function () {
 
     Route::get('admin/laporan-tamu/export/', [TamuController::class, 'export'])->name('admin.tamu.export');
     Route::get('admin/laporan-ekspedisi/export/', [KurirController::class, 'export'])->name('admin.kurir.export');
+    Route::get('/admin/download-format', [AdminController::class, 'downloadFormat'])->name('pegawai.download-format');
 
     // Route::get('laporan-tamu-pdf', [TamuController::class, 'exportPDF'])->name('laporan_tamu.pdf');
 });
@@ -66,16 +70,15 @@ Route::middleware(['auth', 'checkRole:FO'])->group(function () {
 
     Route::get('/get-notifications', function () {
         $notifications = session('notifications', []);
-        if(empty($notifications)) {
+        if (empty($notifications)) {
             return response()->json(['message' => 'Tidak ada notifikasi ditemukan']);
         }
         return response()->json($notifications);
     });
-
-
-
 });
 
+Route::post('/generate-pdf-tamu', [TamuController::class, 'generatePDF'])->name('generate.pdf.tamu');
+Route::post('/generate-pdf-kurir', [KurirController::class, 'generatePDF'])->name('generate.pdf.kurir');
 
 
 Route::middleware(['auth', 'checkRole:pegawai'])->group(function () {
@@ -86,8 +89,10 @@ Route::middleware(['auth', 'checkRole:pegawai'])->group(function () {
     Route::get('pegawai/manajemen-kunjungan', [PegawaiController::class, 'manajemen_kunjungan'])->name('pegawai.manajemen-kunjungan');
     Route::post('pegawai/update-kunjungan/{id_tamu}', [PegawaiController::class, 'update_status'])->name('pegawai.update-status');
     Route::get('pegawai/laporan-tamu/export', [PegawaiController::class, 'exportTamu'])->name('pegawai.tamu.export');
-    Route::get('pegawai/laporan-kurir/export', [PegawaiController::class, 'exportKurir'])->name('pegawai.kurir.export');
     Route::post('/profile/update', [PegawaiController::class, 'updateProfile'])->name('user.update');
+
+    Route::post('/pegawai/generate-pdf-kurir', [PegawaiController::class, 'generatePDFKurir'])->name('generate.pdf.kurir');
+    Route::post('/pegawai/generate-pdf-tamu  ', [PegawaiController::class, 'generatePDFTamu'])->name('generate.pdf.tamu');
 
     // Rute pegawai lainnya...
 });
@@ -96,8 +101,8 @@ Route::get('/tamu', [TamuController::class, 'user'])->name('tamu');
 
 Route::get('/kurir', [ShowController::class, 'kurir'])->name('kurir');
 Route::get('/tentang-kami', [ShowController::class, 'tentangkami'])->name('tentang-kami');
-Route::get('/guru', [ShowController::class, 'guru'])->name('guru');
-Route::get('/tenaga-kependidikan', [ShowController::class, 'tendik'])->name('tendik');
+// Route::get('/guru', [ShowController::class, 'guru'])->name('guru');
+// Route::get('/tenaga-kependidikan', [ShowController::class, 'tendik'])->name('tendik');
 
 
 Route::get('/tamu', [UserController::class, 'role'])->name('tamu')->defaults('view', 'user.pendaftaran-tamu');
@@ -122,4 +127,3 @@ Route::post('confirm-appointment/{token}/{action}', [TamuController::class, 'kon
     ->where(['action' => 'reject']);
 
 Route::get('/tamu-baru', [TamuController::class, 'getNotifications'])->name('tamu.baru');
-

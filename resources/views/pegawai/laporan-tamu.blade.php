@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-    {{-- css --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    -- css --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/material-dashboard.css') }}">
 
@@ -15,10 +15,21 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
 
 
     <title>GuBook</title>
+    <style>
+        #datePickerContainer {
+            z-index: 1000;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            right: 0
+        }
+    </style>
 </head>
 
 <body style="overflow-x:hidden;">
@@ -40,20 +51,93 @@
 
                         <div class="card-body px-0 pb-2" style="width: 100%">
                             <div class="m-4 d-flex justify-content-between align-items-center">
-                                <div class="search d-flex align-items-center">
-                                    <i class='bx bx-search'></i>
-                                    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Cari..">
-                                </div>
-                                <div class="export">
-                                    <a href="{{ route('pegawai.tamu.export') }}"
-                                        class="d-flex align-items-center rounded-lg px-3 py-1 text-green-500 transition-all ease-in-out hover:btn hover:btn-success hover:btn-sm">
-                                        <i class="fa-solid fa-file-export"></i>
-                                        Export
-                                    </a>
+                                <x-search-filter-tamu :search="request('search')" :searchBy="request('search_by')" :status="request('status')"
+                                action="/pegawai/laporan-tamu" :options="[
+                                    'nama_tamu' => 'Nama Tamu',
+                                    'email_tamu' => 'Email Tamu',
+                                    'nama_pegawai' => 'Pegawai yang dituju',
+                                    'instansi' => 'Instansi',
+                                    'tujuan' => 'Tujuan',
+                                ]" />
+
+
+                                <div class="d-flex">
+
+                                    <div class="filterStatus ms-2">
+                                        <button style="border:none; background:none;" type="button"
+                                            class="d-flex align-items-center" data-bs-toggle="offcanvas"
+                                            data-bs-target="#offcanvasDateFilte" aria-controls="offcanvasDateFilter">
+                                            <i class='bx bxs-file-pdf m-0' style="color: #707070; font-size: 30px;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasDateFilte"
+                                aria-labelledby="offcanvasNotificationLabel">
+                                <div class="offcanvas-header">
+                                    <h5 id="offcanvasNotificationLabel">Download Rekapan PDF</h5>
+                                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <form id="dateRangeForm">
+                                        <div class="mb-3">
+                                            <label for="filterType">Pilih Filter:</label>
+                                            <select id="filterType" class="form-select"
+                                                style="border: 1px solid #d9dee3;">
+                                                <option value="month" selected>Filter Bulan</option>
+                                                <option value="date_range">Filter Rentang Tanggal</option>
+                                                <option value="year">Filter Tahun</option>
+                                            </select>
+                                        </div>
 
+                                        <!-- Month Filter -->
+                                        <div id="monthFilter" style="display:none;">
+                                            <label for="monthInput">Pilih Bulan:</label>
+                                            <input type="month" id="monthInput" class="form-control">
+                                        </div>
 
+                                        <!-- Date Range Filter -->
+                                        <div id="dateRangeFilter" style="display:none;">
+                                            <label for="startDate">Mulai Tanggal:</label>
+                                            <input type="date" id="startDate" class="form-control">
+                                            <label for="endDate">Sampai Tanggal:</label>
+                                            <input type="date" id="endDate" class="form-control">
+                                        </div>
+
+                                        <!-- Year Filter -->
+                                        <div id="yearFilter" style="display:none;">
+                                            <label for="yearInput">Pilih Tahun:</label>
+                                            <input type="number" id="yearInput" class="form-control">
+                                        </div>
+
+                                        <!-- New: Report Type -->
+                                        <div class="mb-3">
+                                            <label for="reportType">Jenis Laporan:</label>
+                                            <select id="reportType" class="form-select"
+                                                style="border: 1px solid #d9dee3;">
+                                                <option value="summary">Rekapan</option>
+                                                <option value="detail">Detail Tamu</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- New: Status Filter -->
+                                        <div class="mb-3">
+                                            <label for="statusFilter">Filter Status:</label>
+                                            <select id="statusFilter" class="form-select"
+                                                style="border: 1px solid #d9dee3;">
+                                                <option value="">Semua Status</option>
+                                                <option value="Menunggu konfirmasi">Menunggu konfirmasi</option>
+                                                <option value="Diterima">Diterima</option>
+                                                <option value="Ditolak">Ditolak</option>
+                                            </select>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary mt-3 w-100">Generate
+                                            PDF</button>
+                                    </form>
+                                </div>
+                            </div>
                             <div class="table-responsive p-4">
                                 <table class="table align-items-center mb-0 p-3" id="laporanTable">
                                     <thead>
@@ -78,7 +162,7 @@
                                             <tr>
                                                 <td class="align-middle text-center text-sm p-4">
                                                     <span
-                                                        class="text-center text-secondary text-xs font-weight-bold">{{ $index + 1 }}</span>
+                                                        class="text-center text-secondary text-xs font-weight-bold">{{ $tamus->firstItem() + $index }}</span>
                                                 </td>
                                                 <td>
                                                     <div
@@ -88,42 +172,45 @@
 
 
                                                             <h6 class="mb-0 text-sm font-weight-bold">
-                                                                {{ $kedatanganTamu->tamu->nama }}</h6>
-                                                            {{-- <span
-                                                                class="text-xs font-weight-bold mb-0">{{ $kedatanganTamu->tamu->no_telp }}</span> --}}
+                                                                {{ ucwords(strtolower($kedatanganTamu->tamu->nama)) }}
+                                                            </h6>
                                                             <p class="text-xs mb-0">
                                                                 {{ $kedatanganTamu->tamu->email }}</p>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                {{-- <td>
-                                                <p class="text-xs font-weight-bold mb-0">
-                                                    {{ $kedatanganTamu->tamu->alamat }}</p>
-                                            </td> --}}
-                                                {{-- <td class="align-middle text-center">
-                                                <span
-                                                    class="text-xs font-weight-bold mb-0">{{ $kedatanganTamu->tamu->no_telp }}</span>
-                                            </td> --}}
-                                                {{-- <td class="align-middle text-center">
-                                                <span
-                                                    class="text-xs font-weight-bold mb-0">{{ $kedatanganTamu->instansi }}</span>
-                                            </td> --}}
                                                 <td class="align-middle text-center">
                                                     <span
                                                         class="text-xs font-weight-bold mb-0">{{ $kedatanganTamu->user->name }}</span>
                                                 </td>
-                                                {{-- <td class="align-middle text-center">
-                                                <span
-                                                    class="text-xs font-weight-bold mb-0">{{ $kedatanganTamu->tujuan }}</span>
-                                            </td> --}}
                                                 <td class="align-middle text-center">
                                                     <span {{-- class="text-xs font-weight-bold mb-0">{{ \Carbon\Carbon::parse($kedatanganTamu->waktu_perjanjian)->format('d/m/Y H:i') }}</span> --}}
                                                         class="font-weight-bold text-xs">{{ \Carbon\Carbon::parse($kedatanganTamu->waktu_perjanjian)->translatedFormat('l, d/m/Y, H:i') }}</span>
                                                 </td>
                                                 <td class="align-middle text-center">
                                                     <span class="text-xs font-weight-bold mb-0">
-                                                        {{ $kedatanganTamu->waktu_kedatangan ? \Carbon\Carbon::parse($kedatanganTamu->waktu_kedatangan)->translatedFormat('l, d/m/Y, H:i') : 'Tamu Belum Datang' }}
+                                                        @php
+                                                            $isLate =
+                                                                $kedatanganTamu->status === 'Diterima' &&
+                                                                !$kedatanganTamu->waktu_kedatangan &&
+                                                                \Carbon\Carbon::parse($kedatanganTamu->waktu_perjanjian)
+                                                                    ->addMinutes(30)
+                                                                    ->lessThan(now());
+                                                        @endphp
+
+                                                        @if ($isLate)
+                                                            Tamu Tidak Datang
+                                                        @elseif ($kedatanganTamu->status === 'Ditolak')
+                                                            Tamu Ditolak
+                                                        @elseif ($kedatanganTamu->status === 'Menunggu konfirmasi' && $kedatanganTamu->waktu_perjanjian < now())
+                                                            Tamu Tidak Dikonfirmasi
+                                                        @elseif ($kedatanganTamu->status === 'Menunggu konfirmasi')
+                                                            Menunggu Konfirmasi
+                                                        @else
+                                                            {{ $kedatanganTamu->waktu_kedatangan ? \Carbon\Carbon::parse($kedatanganTamu->waktu_kedatangan)->translatedFormat('l, d/m/Y, H:i') : 'Tamu Belum Datang' }}
+                                                        @endif
                                                     </span>
+
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
                                                     @if ($kedatanganTamu->status === 'Diterima')
@@ -137,12 +224,9 @@
                                                             class="bg-gradient-dark">{{ $kedatanganTamu->status }}</span>
                                                     @endif
                                                 </td>
-                                                {{-- <td class="align-middle text-center">
-                                                <i class="fa-solid fa-image image-icon"
-                                                    data-src="{{ $kedatanganTamu->foto ? asset('storage/img-tamu/' . $kedatanganTamu->foto) : asset('img/logo-hitam.png') }}"></i>
-                                            </td> --}}
                                                 <td class="align-middle text-center">
-                                                    <button class="detail-button" style="border: none; background:none;"
+                                                    <button class="detail-button"
+                                                        style="border: none; background:none;"
                                                         data-tamu="{{ json_encode($kedatanganTamu) }}">
                                                         <i class="fa-solid fa-circle-info"></i>
                                                     </button>
@@ -172,7 +256,8 @@
                 </div>
                 <div class="modal-body p-0">
                     <div class="guest-card-compact">
-                        <div class="tamu-header align-items-center pt-0" style="display: flex; flex-direction: column;">
+                        <div class="tamu-header align-items-center pt-0"
+                            style="display: flex; flex-direction: column;">
                             <img id="tamuAvatar" src="" alt="Foto Tamu" class="tamu-avatar">
                             <h2 id="tamuNama" class="tamu-name"></h2>
                             <span id="tamuEmail" class="tamu-email font-weight-bold"></span>
@@ -217,64 +302,100 @@
             </div>
         </div>
     </div>
+
     <div id="imageModal" class="modal">
         <span class="close">&times;</span>
         <img class="modal-content" id="modalImage">
+    </div>
+
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered"
+            style="max-width: 60vw; margin: 1rem auto; justify-content: center;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfPreviewModalLabel">Preview PDF</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pb-0">
+                    <!-- PDF Preview Container -->
+                    <div class="pdf-preview-container"
+                        style="height: calc(85vh - 180px); width: 100%; border: 1px solid #dee2e6; margin-bottom: 1rem;">
+                        <iframe id="pdfPreviewFrame" style="width: 100%; height: 100%; border: none;"></iframe>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <i class='bx bx-info-circle me-2'></i>
+                        PDF telah berhasil dibuat. Anda dapat melihat preview di atas atau mengunduhnya.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class='bx bx-x'></i> Tutup
+                    </button>
+                    <button type="button" class="btn btn-primary" id="downloadPdfBtn">
+                        <i class='bx bx-download'></i> Unduh PDF
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     {{-- section end --}}
 
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-oBqDVmMz4fnFO9FfN2IO49JWKNj4Xc4lTnL8E+vsgYV8h6i+n81paAnw1Pp8DAfB1" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-        integrity="sha384-c0vJ+c44F1c8Upct9c0V6sHFeKt9Wv9m6rKf6BqP8Iq5k5hBf9Wh9oQAK86b8G0E" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
     <script>
+        $(document).ready(function() {
+            // Inisialisasi datepicker
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd', // Format sesuai yang Anda inginkan
+                autoclose: true, // Menutup Datepicker setelah memilih tanggal
+                todayHighlight: true // Menyoroti tanggal hari ini
+            });
+
+            // Menampilkan dan menyembunyikan input tanggal
+            $('#toggleDatePicker').on('click', function() {
+                $('#datePickerContainer').toggleClass('d-none');
+            });
+        });
+
         $(document).ready(function() {
             // Initialize DataTable
             var table = $('#laporanTable').DataTable({
                 "paging": false,
-                "searching": true, // Disable DataTables' default search
                 "ordering": true,
-                "info": false
+                "info": false,
+                "searching": false,
             });
+
+            function updateUrlAndReload(paramName, paramValue) {
+                var url = new URL(window.location.href);
+                if (paramValue) {
+                    url.searchParams.set(paramName, paramValue);
+                } else {
+                    url.searchParams.delete(paramName);
+                }
+                window.location.href = url.toString();
+            }
 
             // Custom search input functionality
             $('#myInput').on('keyup', function() {
-                table.search(this.value).draw(); // Use DataTables' search API
+                var searchValue = $(this).val();
+                updateUrlAndReload('search', searchValue);
+            });
+
+            // PTK filter functionality
+            $('#filterStatus').on('change', function() {
+                var statusValue = $(this).val();
+                updateUrlAndReload('status', statusValue);
             });
 
             $('#laporanTable_filter').hide();
         });
 
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const table = document.querySelector('#laporanTable');
-            const headers = table.querySelectorAll('th');
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-            headers.forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    const isAscending = header.classList.contains('sorted-asc');
-                    const newRows = rows.sort((rowA, rowB) => {
-                        const cellA = rowA.children[index].innerText.trim();
-                        const cellB = rowB.children[index].innerText.trim();
-                        return isAscending ? cellB.localeCompare(cellA) : cellA
-                            .localeCompare(cellB);
-                    });
-
-                    table.querySelector('tbody').append(...newRows);
-
-                    headers.forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
-                    header.classList.toggle('sorted-asc', !isAscending);
-                    header.classList.toggle('sorted-desc', isAscending);
-                });
-            });
-        });
 
         document.addEventListener('DOMContentLoaded', function() {
             const detailButtons = document.querySelectorAll('.detail-button');
@@ -378,7 +499,135 @@
             }
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterType = document.getElementById('filterType');
+            const monthFilter = document.getElementById('monthFilter');
+            const dateRangeFilter = document.getElementById('dateRangeFilter');
+            const yearFilter = document.getElementById('yearFilter');
+            const form = document.getElementById('dateRangeForm');
+            const pdfPreviewModal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
+            let currentPdfUrl = null;
 
+            // Show default filter when page loads
+            if (filterType.value === 'month') {
+                monthFilter.style.display = 'block';
+                dateRangeFilter.style.display = 'none';
+                yearFilter.style.display = 'none';
+            }
+
+            filterType.addEventListener('change', function() {
+                monthFilter.style.display = 'none';
+                dateRangeFilter.style.display = 'none';
+                yearFilter.style.display = 'none';
+
+                switch (this.value) {
+                    case 'month':
+                        monthFilter.style.display = 'block';
+                        break;
+                    case 'date_range':
+                        dateRangeFilter.style.display = 'block';
+                        break;
+                    case 'year':
+                        yearFilter.style.display = 'block';
+                        break;
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let data = {
+                    type: document.getElementById('filterType').value,
+                    report_type: document.getElementById('reportType').value,
+                    status: document.getElementById('statusFilter').value
+                };
+
+                // Get the appropriate value based on filter type
+                switch (data.type) {
+                    case 'month':
+                        data.value = document.getElementById('monthInput').value;
+                        break;
+                    case 'date_range':
+                        data.start = document.getElementById('startDate').value;
+                        data.end = document.getElementById('endDate').value;
+                        break;
+                    case 'year':
+                        data.value = document.getElementById('yearInput').value;
+                        break;
+                }
+
+                // Show loading state
+                const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+                downloadPdfBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Generating PDF...';
+                downloadPdfBtn.disabled = true;
+
+                fetch('/pegawai/generate-pdf-tamu', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        // Create a URL for the PDF blob
+                        if (currentPdfUrl) {
+                            URL.revokeObjectURL(currentPdfUrl);
+                        }
+                        currentPdfUrl = URL.createObjectURL(blob);
+
+                        // Set the PDF preview in the iframe
+                        const previewFrame = document.getElementById('pdfPreviewFrame');
+                        previewFrame.src = currentPdfUrl;
+
+                        // Reset download button state
+                        downloadPdfBtn.innerHTML = '<i class="bx bx-download"></i> Unduh PDF';
+                        downloadPdfBtn.disabled = false;
+
+                        // Set up download button
+                        downloadPdfBtn.onclick = function() {
+                            const link = document.createElement('a');
+                            link.href = currentPdfUrl;
+                            link.download = 'rekap_tamu.pdf';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+
+                        // Close the filter offcanvas
+                        const offcanvasElement = document.getElementById('offcanvasDateFilter');
+                        const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                        if (offcanvas) {
+                            offcanvas.hide();
+                        }
+
+                        // Show the PDF preview modal
+                        pdfPreviewModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat mengunduh PDF: ' + error.message);
+
+                        // Reset download button state on error
+                        downloadPdfBtn.innerHTML = '<i class="bx bx-download"></i> Unduh PDF';
+                        downloadPdfBtn.disabled = false;
+                    });
+            });
+
+            // Clean up object URL when modal is hidden
+            document.getElementById('pdfPreviewModal').addEventListener('hidden.bs.modal', function() {
+                if (currentPdfUrl) {
+                    URL.revokeObjectURL(currentPdfUrl);
+                    currentPdfUrl = null;
+                }
+            });
+        });
     </script>
 </body>
 
